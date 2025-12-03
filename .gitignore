@@ -1,0 +1,106 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# 虚拟环境
+venv/
+env/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 环境变量和敏感信息
+.env
+.env.local
+.env.*.local
+
+# 系统文件
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# 日志文件
+*.log
+logs/
+storage/logs/*.log
+!storage/logs/.gitkeep
+
+# 数据库文件（不提交数据库文件）
+storage/databases/*.db
+storage/databases/*.db-shm
+storage/databases/*.db-wal
+!storage/databases/.gitkeep
+
+# 数据文件（原始数据和处理后的数据都很大，不提交）
+# 忽略 data/raw/ 目录下的所有文件，但保留 .gitkeep
+data/raw/*
+!data/raw/.gitkeep
+# 忽略 data/processed/ 目录下的所有文件，但保留 .gitkeep
+data/processed/*
+!data/processed/.gitkeep
+# 忽略 data/dict/ 目录下的所有文件，但保留 .gitkeep
+data/dict/*
+!data/dict/.gitkeep
+
+# 模型文件（通常很大，不提交）
+storage/models/**/*.bin
+storage/models/**/*.safetensors
+storage/models/**/*.pt
+storage/models/**/*.pth
+storage/models/**/*.ckpt
+!storage/models/.gitkeep
+# 保留模型配置文件（如果需要的话）
+# !storage/models/**/*.json
+# !storage/models/**/*.txt
+# !storage/models/**/*.config
+
+# PID 文件
+storage/pids/*.pid
+!storage/pids/.gitkeep
+
+# 临时文件
+*.tmp
+*.temp
+.cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pytest
+.pytest_cache/
+.coverage
+htmlcov/
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
