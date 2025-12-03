@@ -1,5 +1,4 @@
 # MedGraphRAG 项目依赖包
-python==3.11.4
 
 # Web框架
 fastapi==0.115.11
