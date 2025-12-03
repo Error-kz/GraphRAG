@@ -14,13 +14,13 @@ class Settings:
     """应用配置类"""
     
     # ========== API Keys ==========
-    DEEPSEEK_API_KEY: str = os.getenv("DEEPSEEK_API_KEY", "sk-28cb551d7d7444be8a5cb39664be4942")
-    ZHIPU_API_KEY: str = os.getenv("ZHIPU_API_KEY", "572a40052210412586393a62b15136ae.NWU8EZVlZXjcQfVN")
+    DEEPSEEK_API_KEY: str = os.getenv("DEEPSEEK_API_KEY")
+    ZHIPU_API_KEY: str = os.getenv("ZHIPU_API_KEY")
     
     # ========== Neo4j配置 ==========
     NEO4J_URI: str = os.getenv("NEO4J_URI", "neo4j://0.0.0.0:7687")
-    NEO4J_USER: str = os.getenv("NEO4J_USER", "neo4j")
-    NEO4J_PASSWORD: str = os.getenv("NEO4J_PASSWORD", "12345678")
+    NEO4J_USER: str = os.getenv("NEO4J_USER")
+    NEO4J_PASSWORD: str = os.getenv("NEO4J_PASSWORD")
     NEO4J_ENCRYPTED: bool = os.getenv("NEO4J_ENCRYPTED", "False").lower() == "true"
     
     # ========== Redis配置 ==========
