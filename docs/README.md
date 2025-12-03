@@ -3,6 +3,10 @@
 MedGraphRAG 是一个结合 **知识图谱 (Neo4j)**、**向量检索 (Milvus)** 和 **大语言模型 (LLM)** 的中文医疗问答系统。  
 后端基于 FastAPI，前端为纯 HTML/JavaScript 聊天页面，支持可视化展示多源检索路径，适合作为 **教学 Demo** 或 **二次开发起点**。
 
+### 📸 系统效果展示
+
+![MedGraphRAG 系统效果图](./效果.jpeg)
+
 ---
 
 ## ✨ 特性一览
@@ -190,6 +194,12 @@ python scripts/start_graph_service.py
 ```text
 http://localhost:8103/
 ```
+
+#### 🖼️ 页面展示
+
+![MedGraphRAG 前端页面](./页面.png)
+
+#### 📋 功能特性
 
 页面提供：
 
