@@ -15,6 +15,7 @@ import time
 from tqdm import tqdm
 from langchain_core.documents import Document
 from langchain_milvus import Milvus, BM25BuiltInFunction
+from pathlib import Path
 
 from config.settings import settings
 from core.models.embeddings import ZhipuAIEmbeddings
@@ -55,12 +56,45 @@ class MilvusVectorBuilder:
             'index_type': 'SPARSE_INVERTED_INDEX'
         }
     
-    def create_vector_store(self, docs: list):
+    def _check_database_exists(self) -> bool:
         """
-        创建向量存储并添加文档
+        检查数据库是否已存在
+        
+        Returns:
+            True 如果数据库文件存在，False 否则
+        """
+        db_path = Path(self.URI)
+        # 检查数据库目录或文件是否存在
+        return db_path.exists() and (db_path.is_dir() or db_path.is_file())
+    
+    def _connect_to_existing_store(self):
+        """
+        连接到已存在的向量存储
+        
+        Returns:
+            Milvus向量存储实例，如果连接失败返回 None
+        """
+        try:
+            vectorstore = Milvus(
+                embedding_function=self.embeddings,
+                builtin_function=BM25BuiltInFunction(),
+                vector_field=['dense', 'sparse'],
+                index_params=[self.dense_index, self.sparse_index],
+                connection_args={'uri': self.URI},
+                consistency_level='Bounded',
+            )
+            return vectorstore
+        except Exception as e:
+            # 如果连接失败，可能是集合不存在或配置不匹配
+            return None
+    
+    def create_vector_store(self, docs: list, append_mode: bool = True):
+        """
+        创建向量存储并添加文档（支持追加模式）
         
         Args:
             docs: 文档列表（LangChain Document对象）
+            append_mode: 如果为 True，当数据库已存在时追加文档；如果为 False，覆盖现有数据库
             
         Returns:
             Milvus向量存储实例
@@ -68,7 +102,46 @@ class MilvusVectorBuilder:
         if not docs:
             raise ValueError("文档列表不能为空")
         
-        print(f"开始创建向量数据库，共 {len(docs)} 条文档...")
+        db_exists = self._check_database_exists()
+        
+        # 追加模式：尝试连接到现有数据库
+        if append_mode and db_exists:
+            print(f"📂 检测到已存在的数据库: {self.URI}")
+            print("🔄 尝试连接到现有向量存储...")
+            
+            existing_store = self._connect_to_existing_store()
+            if existing_store is not None:
+                print("✅ 成功连接到现有向量存储，将追加新文档")
+                self.vectorstore = existing_store
+                
+                # 直接追加所有文档
+                count = 0
+                temp = []
+                
+                for doc in tqdm(docs, desc="追加文档到Milvus"):
+                    temp.append(doc)
+                    if len(temp) >= 5:
+                        self.vectorstore.add_documents(temp)
+                        count += len(temp)
+                        temp = []
+                        print(f'已追加 {count} 条数据...')
+                        time.sleep(1)  # 避免请求过快
+                
+                # 添加剩余的文档
+                if temp:
+                    self.vectorstore.add_documents(temp)
+                    count += len(temp)
+                
+                print(f'✅ 总共追加 {count} 条新数据到现有数据库')
+                return self.vectorstore
+            else:
+                print("⚠️  无法连接到现有数据库，将创建新的向量存储")
+        
+        # 创建新数据库或覆盖模式
+        if not append_mode and db_exists:
+            print("⚠️  覆盖模式：将删除现有数据库并创建新的")
+        else:
+            print(f"📝 创建新的向量数据库，共 {len(docs)} 条文档...")
         
         # 初始化前10个文档创建向量存储
         init_docs = docs[:10] if len(docs) >= 10 else docs
@@ -83,7 +156,7 @@ class MilvusVectorBuilder:
                 vector_field=['dense', 'sparse'],
                 connection_args={'uri': self.URI},
                 consistency_level='Bounded',
-                drop_old=False,
+                drop_old=not append_mode,  # 追加模式不删除旧数据
             )
             print('✅ 已初始化创建 Milvus 向量存储')
         except Exception as e:
@@ -134,20 +207,24 @@ class MilvusVectorBuilder:
         return self.vectorstore
 
 
-def build_milvus_database(file_paths: list = None, uri: str = None):
+def build_milvus_database(file_paths: list = None, uri: str = None, append_mode: bool = True):
     """
-    构建Milvus向量数据库的便捷函数
+    构建Milvus向量数据库的便捷函数（支持追加模式）
     
     Args:
         file_paths: JSONL文件路径列表，默认使用配置中的数据路径
         uri: Milvus数据库URI，默认使用配置中的MILVUS_AGENT_DB
+        append_mode: 如果为 True，当数据库已存在时追加文档；如果为 False，覆盖现有数据库
         
     Returns:
         Milvus向量存储实例
     """
     # 加载文档
     print("=" * 60)
-    print("开始构建 Milvus 向量数据库")
+    if append_mode:
+        print("开始构建/追加 Milvus 向量数据库（追加模式）")
+    else:
+        print("开始构建 Milvus 向量数据库（覆盖模式）")
     print("=" * 60)
     
     print("\n[步骤1] 加载JSON文档...")
@@ -160,12 +237,15 @@ def build_milvus_database(file_paths: list = None, uri: str = None):
     print(f"✅ 成功加载 {len(docs)} 条文档")
     
     # 创建向量存储
-    print("\n[步骤2] 创建向量存储...")
+    print("\n[步骤2] 创建/追加向量存储...")
     builder = MilvusVectorBuilder(uri=uri)
-    vectorstore = builder.create_vector_store(docs)
+    vectorstore = builder.create_vector_store(docs, append_mode=append_mode)
     
     print("\n" + "=" * 60)
-    print("✅ 向量数据库构建完成！")
+    if append_mode:
+        print("✅ 向量数据库追加完成！")
+    else:
+        print("✅ 向量数据库构建完成！")
     print("=" * 60)
     print(f"\n数据库路径: {builder.URI}")
     print("可以开始使用向量检索功能了！")
@@ -174,11 +254,38 @@ def build_milvus_database(file_paths: list = None, uri: str = None):
 
 
 def main():
-    """主函数，用于命令行执行"""
+    """
+    主函数，用于命令行执行
+    默认使用追加模式，如果数据库已存在则追加新文档
+    """
+    import argparse
+    
+    parser = argparse.ArgumentParser(description='构建 Milvus 向量数据库')
+    parser.add_argument(
+        '--overwrite',
+        action='store_true',
+        help='覆盖模式：如果数据库已存在，删除旧数据并重新创建（默认：追加模式）'
+    )
+    parser.add_argument(
+        '--file',
+        type=str,
+        default=None,
+        help='要导入的JSONL文件路径（默认：使用配置中的data.jsonl）'
+    )
+    
+    args = parser.parse_args()
+    
+    # 确定文件路径
+    file_paths = [args.file] if args.file else [f'{settings.DATA_RAW_PATH}/dev.jsonl']
+    
+    # 追加模式（默认）：append_mode=True
+    # 覆盖模式：append_mode=False
+    append_mode = not args.overwrite
+    
     try:
         vectorstore = build_milvus_database(
-            file_paths=[f'{settings.DATA_RAW_PATH}/data.jsonl']
-
+            file_paths=file_paths,
+            append_mode=append_mode
         )
         if vectorstore:
             print("\n✅ 全部初始化完成，可以开始问答了！")
