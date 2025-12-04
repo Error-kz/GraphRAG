@@ -27,7 +27,7 @@ class MedicalGraph:
             data_path: 医疗数据JSON文件路径，如果为None则使用配置中的路径
         """
         if data_path is None:
-            data_path = os.path.join(settings.DATA_RAW_PATH, 'medical.json')
+            data_path = os.path.join(settings.DATA_RAW_PATH, 'medical.jsonl')
         
         self.data_path = data_path
         self.client = Neo4jClient()
