@@ -57,6 +57,7 @@ storage/logs/*.log
 storage/databases/*.db
 storage/databases/*.db-shm
 storage/databases/*.db-wal
+storage/databases/*.db.lock
 !storage/databases/.gitkeep
 
 # 数据文件（原始数据和处理后的数据都很大，不提交）
