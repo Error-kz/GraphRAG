@@ -209,6 +209,14 @@ async def create_new_session(request: Request):
     # 生成新的session_id
     new_session_id = generate_session_id()
     
+    # 立即在历史记录中创建一个标题为"新窗口"的会话
+    try:
+        from core.cache.redis_client import create_session_in_history
+        redis_client = get_redis_client()
+        create_session_in_history(redis_client, new_session_id, title="新窗口")
+    except Exception as e:
+        print(f"创建新窗口到历史记录失败: {str(e)}")
+    
     return {
         'status': 200,
         'session_id': new_session_id,

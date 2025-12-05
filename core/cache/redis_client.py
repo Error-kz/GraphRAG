@@ -89,8 +89,28 @@ def save_conversation_history(r: redis.Redis, session_id: str, question: str, an
     # 使用List结构存储，key格式：chat:history:{session_id}
     key = f'chat:history:{session_id}'
     
+    # 检查是否是第一条对话（保存前检查）
+    is_first_message = (r.llen(key) == 0)
+    
     # 将对话记录追加到列表末尾
     r.rpush(key, json.dumps(conversation_record, ensure_ascii=False))
+    
+    # 如果是第一条对话，检查并更新会话标题
+    if is_first_message:
+        # 检查会话是否在历史列表中，且标题是否为"新窗口"
+        sessions_key = 'chat:sessions:list'
+        sessions = r.zrevrange(sessions_key, 0, -1)
+        
+        for session_json in sessions:
+            try:
+                session_info = json.loads(session_json)
+                if session_info.get('session_id') == session_id:
+                    # 如果标题是"新窗口"，更新为第一个问题
+                    if session_info.get('title') == '新窗口':
+                        update_session_title(r, session_id, question)
+                    break
+            except:
+                continue
     
     # 限制历史记录数量，只保留最近10条
     max_history = 10
@@ -120,6 +140,76 @@ def save_conversation_history(r: redis.Redis, session_id: str, question: str, an
     r.expire(key, expire)
     
     return new_session_id, should_create_new
+
+
+def create_session_in_history(r: redis.Redis, session_id: str, title: str = "新窗口"):
+    """
+    在历史记录列表中创建一个新会话（用于创建新窗口时）
+    
+    Args:
+        r: Redis客户端实例
+        session_id: 会话ID
+        title: 会话标题，默认为"新窗口"
+    """
+    # 构建会话信息
+    session_info = {
+        'session_id': session_id,
+        'title': title[:50] if len(title) > 50 else title,  # 标题最多50字符
+        'update_time': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        'message_count': 0  # 初始为0条对话
+    }
+    
+    # 保存到会话列表，使用Sorted Set按时间排序
+    sessions_key = 'chat:sessions:list'
+    r.zadd(sessions_key, {json.dumps(session_info, ensure_ascii=False): datetime.now().timestamp()})
+    
+    # 限制历史会话数量，只保留最近50个
+    max_sessions = 50
+    session_count = r.zcard(sessions_key)
+    if session_count > max_sessions:
+        # 删除最旧的会话
+        r.zremrangebyrank(sessions_key, 0, session_count - max_sessions - 1)
+    
+    # 设置过期时间（30天）
+    r.expire(sessions_key, 2592000)
+
+
+def update_session_title(r: redis.Redis, session_id: str, new_title: str):
+    """
+    更新历史记录列表中会话的标题
+    
+    Args:
+        r: Redis客户端实例
+        session_id: 会话ID
+        new_title: 新的标题
+    """
+    sessions_key = 'chat:sessions:list'
+    
+    # 获取所有会话
+    sessions = r.zrevrange(sessions_key, 0, -1)
+    
+    # 查找并更新指定会话
+    for session_json in sessions:
+        try:
+            session_info = json.loads(session_json)
+            if session_info.get('session_id') == session_id:
+                # 更新标题
+                session_info['title'] = new_title[:50] if len(new_title) > 50 else new_title
+                # 更新消息数量
+                key = f'chat:history:{session_id}'
+                history_list = r.lrange(key, 0, -1)
+                session_info['message_count'] = len(history_list)
+                # 更新最后一条记录的时间
+                if history_list:
+                    last_record = json.loads(history_list[-1])
+                    session_info['update_time'] = last_record.get('timestamp', datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+                
+                # 删除旧的，添加新的
+                r.zrem(sessions_key, session_json)
+                r.zadd(sessions_key, {json.dumps(session_info, ensure_ascii=False): datetime.now().timestamp()})
+                break
+        except:
+            continue
 
 
 def save_session_to_history(r: redis.Redis, session_id: str, first_question: str = None):
