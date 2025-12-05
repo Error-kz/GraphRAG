@@ -75,7 +75,7 @@ MedGraphRAG 是一个基于知识图谱和向量检索的医疗问答系统，�
 
 ### 📚 文档
 
-- 完整的技术文档（`docs/technical_workflow.md`）
+- 完整的技术文档（`docs/architecture/technical_workflow.md`）
 - API 文档
 - 模块说明文档
 - 使用示例

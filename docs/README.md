@@ -5,7 +5,7 @@ MedGraphRAG 是一个结合 **知识图谱 (Neo4j)**、**向量检索 (Milvus)**
 
 ### 📸 系统效果展示
 
-![MedGraphRAG 系统效果图](./效果.jpeg)
+![MedGraphRAG 系统效果图](./images/效果.jpeg)
 
 ---
 
@@ -33,7 +33,15 @@ MedGraphRAG 是一个结合 **知识图谱 (Neo4j)**、**向量检索 (Milvus)**
   - 📝 模块内 `README.md` 文档说明
   - 📂 日志、PID、数据库等均落在 [`storage/`](../storage/) 下，便于管理 → [查看文档](../storage/README.md)
 
-更细粒度的模块说明见各模块目录下的 `README.md`，以及 [`docs/technical_workflow.md`](./technical_workflow.md) 中的技术流程说明。
+更细粒度的模块说明见各模块目录下的 `README.md`，以及 `docs/architecture/technical_workflow.md` 中的技术流程说明。
+
+---
+
+## 📖 快速导航
+
+- 🚀 [环境准备](#-环境准备) | 🎬 [启动与运行](#-启动与运行) | 💻 [使用方式](#-使用方式) | 🏗️ [架构概览](#️-架构概览)
+- ⚙️ [配置模块文档](../config/README.md) | 🧩 [核心模块文档](../core/README.md) | 🚀 [服务层文档](../services/README.md)
+- 📋 [技术流程文档](./architecture/technical_workflow.md) | 📝 [对话记录系统](./architecture/conversation_history_system.md) | 🗺️ [版本路线图](./roadmap/v2.0_roadmap.md) | 📁 [项目根目录](../)
 
 ---
 
@@ -41,7 +49,7 @@ MedGraphRAG 是一个结合 **知识图谱 (Neo4j)**、**向量检索 (Milvus)**
 
 下图展示了 MedGraphRAG 系统的完整工作流程，从数据准备、知识库构建到用户查询、并行检索和答案生成的五个核心步骤：
 
-![MedGraphRAG 系统流程图](./流程图.png)
+![MedGraphRAG 系统流程图](./images/流程图.png)
 
 **流程说明：**
 
@@ -74,21 +82,23 @@ MedGraphRAG/
 
 ### 📚 模块文档导航
 
-常用子模块文档入口（点击可跳转到对应文档）：
+常用子模块文档入口：
 
-- ⚙️ **配置模块**：[`config/README.md`](../config/README.md) | [配置文件](../config/settings.py)
-- 🧩 **核心模块总览**：[`core/README.md`](../core/README.md)
-  - 🤖 模型封装（LLM / Embedding）：[`core/models/README.md`](../core/models/README.md) | [代码](../core/models/)
-  - 🔍 向量库（Milvus）：[`core/vector_store/README.md`](../core/vector_store/README.md) | [代码](../core/vector_store/milvus_client.py)
-  - 💾 缓存（Redis）：[`core/cache/README.md`](../core/cache/README.md) | [代码](../core/cache/redis_client.py)
-  - 🗺️ 知识图谱（Neo4j + NL2Cypher）：[`core/graph/README.md`](../core/graph/README.md) | [代码](../core/graph/)
-- 🚀 **服务层**：[`services/README.md`](../services/README.md) | [Agent 服务](../services/agent_service.py) | [图服务](../services/graph_service.py)
-- 🔌 **API 层**：[`api/README.md`](../api/README.md) | [路由代码](../api/routes/)
-- 📊 **数据目录**：[`data/README.md`](../data/README.md) | [数据文件](../data/)
-- 💿 **存储目录**：[`storage/README.md`](../storage/README.md) | [存储目录](../storage/)
-- 🔧 **工具脚本**：[`utils/README.md`](../utils/README.md) | [工具代码](../utils/)
-- 🎨 **前端与启动脚本**：[`web/README.md`](../web/README.md) | [`scripts/README.md`](../scripts/README.md) | [前端页面](../web/index.html) | [启动脚本](../start.sh)
-- 📋 **整体技术流程**：[`docs/technical_workflow.md`](./technical_workflow.md)
+- ⚙️ **配置模块**：`config/README.md` | 配置文件 `config/settings.py`
+- 🧩 **核心模块总览**：`core/README.md`
+  - 🤖 模型封装（LLM / Embedding）：`core/models/README.md` | 代码 `core/models/`
+  - 🔍 向量库（Milvus）：`core/vector_store/README.md` | 代码 `core/vector_store/milvus_client.py`
+  - 💾 缓存（Redis）：`core/cache/README.md` | 代码 `core/cache/redis_client.py`
+  - 🗺️ 知识图谱（Neo4j + NL2Cypher）：`core/graph/README.md` | 代码 `core/graph/`
+- 🚀 **服务层**：`services/README.md` | Agent 服务 `services/agent_service.py` | 图服务 `services/graph_service.py`
+- 🔌 **API 层**：`api/README.md` | 路由代码 `api/routes/`
+- 📊 **数据目录**：`data/README.md` | 数据文件 `data/`
+- 💿 **存储目录**：`storage/README.md` | 存储目录 `storage/`
+- 🔧 **工具脚本**：`utils/README.md` | 工具代码 `utils/`
+- 🎨 **前端与启动脚本**：`web/README.md` | `scripts/README.md` | 前端页面 `web/index.html` | 启动脚本 `start.sh`
+- 📋 **整体技术流程**：`docs/architecture/technical_workflow.md`
+- 📝 **对话记录系统**：`docs/architecture/conversation_history_system.md`
+- 🗺️ **版本路线图**：`docs/roadmap/v2.0_roadmap.md`
 
 ---
 
@@ -137,7 +147,7 @@ pip install -r requirements.txt
 
 > ⚠️ 建议通过系统环境变量配置敏感信息，**不推荐** 在代码中硬编码 API Key 和密码。
 
-> 💡 详细配置说明请查看：[`config/README.md`](../config/README.md)
+> 💡 详细配置说明请查看：`config/README.md`
 
 ---
 
@@ -167,7 +177,7 @@ chmod +x start.sh        # 第一次使用需要赋予执行权限
 - 📄 [`storage/logs/agent_service_simple.log`](../storage/logs/agent_service_simple.log)
 - 📄 [`storage/logs/graph_service_simple.log`](../storage/logs/graph_service_simple.log)
 
-> 📝 启动脚本说明：[`scripts/README.md`](../scripts/README.md) | [启动脚本源码](../start.sh)
+> 📝 启动脚本说明：`scripts/README.md` | 启动脚本源码 `start.sh`
 
 ### 🔧 方式二：手动启动（开发调试）
 
@@ -197,7 +207,7 @@ http://localhost:8103/
 
 #### 🖼️ 页面展示
 
-![MedGraphRAG 前端页面](./页面.png)
+![MedGraphRAG 前端页面](./images/页面.png)
 
 #### 📋 功能特性
 
@@ -216,12 +226,12 @@ http://localhost:8103/
 - `API_URL = window.location.origin + '/'`
 - 向当前域名根路径发起 `POST /` 请求
 
-对应后端 [`services/agent_service.py`](../services/agent_service.py) 中的：
+对应后端 `services/agent_service.py` 中的：
 
-- `@app.get("/")`：返回 [`web/index.html`](../web/index.html)
+- `@app.get("/")`：返回 `web/index.html`
 - `@app.post("/")`：接收 `{"question": "..."}`，执行多源检索 + LLM 生成回答
 
-> 📖 前端详细说明：[`web/README.md`](../web/README.md) | 服务层说明：[`services/README.md`](../services/README.md)
+> 📖 前端详细说明：`web/README.md` | 服务层说明：`services/README.md`
 
 ### 2️⃣ 直接调用 API
 
@@ -239,32 +249,32 @@ curl -X POST "http://localhost:8103/" \
 curl "http://localhost:8103/api/info"
 ```
 
-图服务还提供 `/generate`、`/validate`、`/execute` 等接口，详见 [`services/README.md`](../services/README.md) 与 [`services/graph_service.py`](../services/graph_service.py)。
+图服务还提供 `/generate`、`/validate`、`/execute` 等接口，详见 `services/README.md` 与 `services/graph_service.py`。
 
 ---
 
 ## 🏗️ 架构概览
 
-- ⚙️ **[`config/`](../config/) – 配置管理** → [文档](../config/README.md)
-  - [`settings.py`](../config/settings.py) 暴露全局 `settings` 实例，统一管理 Neo4j / Redis / Milvus / 模型路径 / 端口等配置。
+- ⚙️ **`config/` – 配置管理**
+  - `settings.py` 暴露全局 `settings` 实例，统一管理 Neo4j / Redis / Milvus / 模型路径 / 端口等配置。
 
-- 🧩 **[`core/`](../core/) – 核心能力** → [文档](../core/README.md)
-  - 🤖 [`models/`](../core/models/)：Embedding 与 LLM 封装（如 `ZhipuAIEmbeddings`、DeepSeek 客户端）→ [文档](../core/models/README.md)
-  - 🔍 [`vector_store/`](../core/vector_store/)：Milvus 向量库封装（混合检索：稠密 + 稀疏 BM25）→ [文档](../core/vector_store/README.md)
-  - 💾 [`cache/`](../core/cache/)：Redis 客户端与问答缓存封装 → [文档](../core/cache/README.md)
-  - 🗺️ [`graph/`](../core/graph/)：Neo4j 客户端、图模式定义、NL2Cypher Prompt、查询验证等 → [文档](../core/graph/README.md)
+- 🧩 **`core/` – 核心能力**
+  - 🤖 `models/`：Embedding 与 LLM 封装（如 `ZhipuAIEmbeddings`、DeepSeek 客户端）
+  - 🔍 `vector_store/`：Milvus 向量库封装（混合检索：稠密 + 稀疏 BM25）
+  - 💾 `cache/`：Redis 客户端与问答缓存封装
+  - 🗺️ `graph/`：Neo4j 客户端、图模式定义、NL2Cypher Prompt、查询验证等
 
-- 🚀 **[`services/`](../services/) – 业务服务** → [文档](../services/README.md)
-  - 🤖 [`agent_service.py`](../services/agent_service.py)：整合向量检索 + PDF 检索 + 知识图谱 + LLM，提供统一 `/` 问答接口
-  - 🗺️ [`graph_service.py`](../services/graph_service.py)：负责 NL2Cypher 生成、验证和执行，对外暴露图服务 API
+- 🚀 **`services/` – 业务服务**
+  - 🤖 `agent_service.py`：整合向量检索 + PDF 检索 + 知识图谱 + LLM，提供统一 `/` 问答接口
+  - 🗺️ `graph_service.py`：负责 NL2Cypher 生成、验证和执行，对外暴露图服务 API
 
-- 🎨 **[`web/`](../web/) – 前端页面** → [文档](../web/README.md)
-  - [`index.html`](../web/index.html)：单页应用（原生 JS），调用后端 API，展示检索路径和回答
+- 🎨 **`web/` – 前端页面**
+  - `index.html`：单页应用（原生 JS），调用后端 API，展示检索路径和回答
 
-- 🔧 **[`scripts/`](../scripts/) – 启动脚本** → [文档](../scripts/README.md)
-  - [`start_agent.py`](../scripts/start_agent.py) / [`start_graph_service.py`](../scripts/start_graph_service.py)：分别启动两个 FastAPI 服务，配合根目录 [`start.sh`](../start.sh) 形成一键启动
+- 🔧 **`scripts/` – 启动脚本**
+  - `start_agent.py` / `start_graph_service.py`：分别启动两个 FastAPI 服务，配合根目录 `start.sh` 形成一键启动
 
-更详细的架构与调用链说明，见 [`docs/technical_workflow.md`](./technical_workflow.md)。
+更详细的架构与调用链说明，见 `docs/architecture/technical_workflow.md`。
 
 ---
 
@@ -275,28 +285,24 @@ curl "http://localhost:8103/api/info"
   - 📋 依赖列表：[`requirements.txt`](../requirements.txt)
 
 - ⚙️ **配置管理**
-  - 🔧 优先通过环境变量或 [`config/settings.py`](../config/settings.py) 修改配置，不在业务代码中硬编码。
-  - 📖 配置说明：[`config/README.md`](../config/README.md)
+  - 🔧 优先通过环境变量或 `config/settings.py` 修改配置，不在业务代码中硬编码。
+  - 📖 配置说明：`config/README.md`
 
 - 🐛 **排错与日志**
-  - 📝 日志位于 [`storage/logs/`](../storage/logs/)，遇到问题优先查看对应服务日志。
-  - 📂 存储目录说明：[`storage/README.md`](../storage/README.md)
+  - 📝 日志位于 `storage/logs/`，遇到问题优先查看对应服务日志。
+  - 📂 存储目录说明：`storage/README.md`
 
 - 🚀 **功能扩展建议**
-  - ➕ **新增数据源**：在 [`core/`](../core/) 中增加对应封装，在 [`services/`](../services/) 中组合调用，在 [`web/`](../web/) 中增加展示。
-  - 🔄 **替换 / 新增 LLM**：在 [`core/models/`](../core/models/) 中封装新模型，在 Agent 逻辑中切换或路由。
-  - 🗺️ **增强图谱**：在 [`data/`](../data/) 与 Neo4j 中补充实体与关系，同时更新 [`core/graph/models.py`](../core/graph/models.py) 中的模式描述。
+  - ➕ **新增数据源**：在 `core/` 中增加对应封装，在 `services/` 中组合调用，在 `web/` 中增加展示。
+  - 🔄 **替换 / 新增 LLM**：在 `core/models/` 中封装新模型，在 Agent 逻辑中切换或路由。
+  - 🗺️ **增强图谱**：在 `data/` 与 Neo4j 中补充实体与关系，同时更新 `core/graph/models.py` 中的模式描述。
 
 如在使用过程中新增模块或流程，建议：
 
 - 📝 在对应模块目录下补充或更新 `README.md`
-- 📋 在 [`docs/technical_workflow.md`](./technical_workflow.md) 中补充技术流程
+- 📋 在 `docs/architecture/technical_workflow.md` 中补充技术流程
 - 📌 如有重大改动，可在本文件中增加「变更记录 / Changelog」小节
 
 ---
 
-## 📖 快速导航
 
-- 🚀 [环境准备](#-环境准备) | 🎬 [启动与运行](#-启动与运行) | 💻 [使用方式](#-使用方式) | 🏗️ [架构概览](#️-架构概览)
-- ⚙️ [配置模块文档](../config/README.md) | 🧩 [核心模块文档](../core/README.md) | 🚀 [服务层文档](../services/README.md)
-- 📋 [技术流程文档](./technical_workflow.md) | 📁 [项目根目录](../)
