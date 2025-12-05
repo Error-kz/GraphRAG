@@ -777,7 +777,7 @@
                     <button class="example-btn" onclick="setExample('感冒了有什么症状？')">感冒了有什么症状？</button>
                     <button class="example-btn" onclick="setExample('高血压患者饮食要注意什么？')">高血压患者饮食要注意什么？</button>
                     <button class="example-btn" onclick="setExample('肩痛应该怎么治疗？')">肩痛应该怎么治疗？</button>
-                        <button class="example-btn" onclick="setExample('保和丸能治疗什么疾病？')">保和丸能治疗什么疾病？</button>
+                        <button class="example-btn" onclick="setExample('我一直咳嗽两三周了，应该怎么治疗？')">我一直咳嗽两三周了，应该怎么治疗？</button>
                 </div>
                 <div class="input-wrapper">
                     <input 
@@ -804,10 +804,11 @@
             <div class="history-header">
                 <h2>对话历史</h2>
                 <div class="history-actions">
+                    <button class="history-btn" onclick="createNewSession()" title="创建新会话">➕</button>
                     <button class="history-btn" onclick="exportHistory()" title="导出历史">📥</button>
                     <button class="history-btn" onclick="clearHistory()" title="清空历史">🗑️</button>
-            </div>
                 </div>
+            </div>
             <div class="history-search">
                 <input 
                     type="text" 
@@ -840,132 +841,159 @@
         // 聊天历史
         let chatHistory = [];
 
-        // 对话历史记录（持久化存储）
-        let conversationHistory = [];
-        let currentHistoryId = null;
-        let filteredHistory = [];
+        // 当前选中的会话ID
+        let currentSessionId = null;
+        let filteredSessions = [];
+        let allSessions = [];
+        
+        // 当前使用的会话ID（用于发送请求）
+        let activeSessionId = null;
 
-        // 从localStorage加载对话历史
-        function loadHistory() {
+        // 从Redis加载对话历史列表
+        async function loadHistory() {
             try {
-                const saved = localStorage.getItem('conversationHistory');
-                if (saved) {
-                    conversationHistory = JSON.parse(saved);
+                const response = await fetch(API_URL + 'api/sessions');
+                const data = await response.json();
+                
+                if (data.status === 200) {
+                    allSessions = data.sessions || [];
                     renderHistory();
+                } else {
+                    console.error('加载对话历史失败:', data.error);
+                    historyEmpty.style.display = 'block';
                 }
             } catch (error) {
                 console.error('加载对话历史失败:', error);
-            }
-        }
-
-        // 保存对话历史到localStorage
-        function saveHistory() {
-            try {
-                localStorage.setItem('conversationHistory', JSON.stringify(conversationHistory));
-            } catch (error) {
-                console.error('保存对话历史失败:', error);
+                historyEmpty.style.display = 'block';
             }
         }
 
         // 渲染对话历史
         function renderHistory() {
-            const historyToRender = filteredHistory.length > 0 ? filteredHistory : conversationHistory;
+            const sessionsToRender = filteredSessions.length > 0 ? filteredSessions : allSessions;
             
-            if (historyToRender.length === 0) {
+            console.log('渲染历史记录，数量:', sessionsToRender.length);
+            
+            if (sessionsToRender.length === 0) {
                 historyEmpty.style.display = 'block';
+                historyContainer.innerHTML = '';
                 return;
             }
             
             historyEmpty.style.display = 'none';
             historyContainer.innerHTML = '';
             
-            // 按时间倒序排列
-            const sortedHistory = [...historyToRender].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-            
-            sortedHistory.forEach(item => {
+            // 会话列表已经按时间倒序排列（从后端返回）
+            sessionsToRender.forEach(session => {
                 const historyItem = document.createElement('div');
                 historyItem.className = 'history-item';
-                if (item.id === currentHistoryId) {
+                if (session.session_id === currentSessionId) {
                     historyItem.classList.add('active');
                 }
                 
-                const time = new Date(item.timestamp);
-                const timeStr = time.toLocaleString('zh-CN', {
-                    month: '2-digit',
-                    day: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
+                // 格式化时间
+                let timeStr = '';
+                try {
+                    const time = new Date(session.update_time);
+                    timeStr = time.toLocaleString('zh-CN', {
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                } catch (e) {
+                    timeStr = session.update_time || '';
+                }
                 
                 historyItem.innerHTML = `
                     <div class="history-item-header">
                         <div class="history-item-time">${timeStr}</div>
                     </div>
-                    <div class="history-item-question">${escapeHtml(item.question)}</div>
-                    <div class="history-item-answer">${escapeHtml(item.answer.substring(0, 100))}${item.answer.length > 100 ? '...' : ''}</div>
+                    <div class="history-item-question">${escapeHtml(session.title || '新对话')}</div>
+                    <div class="history-item-answer">共 ${session.message_count || 0} 条对话</div>
                 `;
                 
-                historyItem.onclick = () => loadHistoryItem(item.id);
+                historyItem.onclick = () => loadHistoryItem(session.session_id);
                 historyContainer.appendChild(historyItem);
             });
         }
 
         // 加载历史对话项
-        function loadHistoryItem(historyId) {
-            const item = conversationHistory.find(h => h.id === historyId);
-            if (!item) return;
-            
-            currentHistoryId = historyId;
-            renderHistory();
-            
-            // 清空当前聊天
-            chatContainer.innerHTML = '';
-            chatHistory = [];
-            emptyState.style.display = 'none';
-            
-            // 重新渲染对话
-            item.messages.forEach(msg => {
-                if (msg.role === 'user') {
-                    addQuestion(msg.content);
-                } else {
-                    addAnswer(
-                        msg.content,
-                        msg.searchStages || null,
-                        msg.searchPath || null
-                    );
+        async function loadHistoryItem(sessionId) {
+            try {
+                const response = await fetch(API_URL + `api/sessions/${sessionId}`);
+                const data = await response.json();
+                
+                if (data.status !== 200 || !data.conversations) {
+                    console.error('加载会话详情失败:', data.error);
+                    return;
                 }
-            });
-            
-            scrollToBottom();
+                
+                currentSessionId = sessionId;
+                renderHistory();
+                
+                // 清空当前聊天
+                chatContainer.innerHTML = '';
+                chatHistory = [];
+                emptyState.style.display = 'none';
+                
+                // 重新渲染对话
+                data.conversations.forEach(conv => {
+                    addQuestion(conv.question);
+                    addAnswer(conv.answer, null, null);
+                });
+                
+                scrollToBottom();
+            } catch (error) {
+                console.error('加载会话详情失败:', error);
+            }
         }
 
-        // 添加对话到历史
-        function addToHistory(question, answer, searchStages = null, searchPath = null) {
-            const historyId = Date.now().toString();
-            const newItem = {
-                id: historyId,
-                timestamp: new Date().toISOString(),
-                question: question,
-                answer: answer,
-                messages: [
-                    { role: 'user', content: question },
-                    { 
-                        role: 'bot', 
-                        content: answer,
-                        searchStages: searchStages,
-                        searchPath: searchPath
-                    }
-                ]
-            };
-            
-            conversationHistory.push(newItem);
-            saveHistory();
-            
-            // 如果正在搜索，更新过滤结果
-            if (historySearchInput.value.trim()) {
-                filterHistory();
-            } else {
-                renderHistory();
+        // 刷新对话历史列表（对话已由后端自动保存到Redis）
+        function refreshHistory() {
+            loadHistory();
+        }
+
+        // 创建新会话
+        async function createNewSession() {
+            try {
+                const oldSessionId = activeSessionId;
+                const response = await fetch(API_URL + 'api/new_session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        old_session_id: oldSessionId
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.status === 200 && data.session_id) {
+                    activeSessionId = data.session_id;
+                    localStorage.setItem('currentSessionId', activeSessionId);
+                    
+                    // 清空当前聊天
+                    chatContainer.innerHTML = '';
+                    chatHistory = [];
+                    currentSessionId = null;
+                    emptyState.style.display = 'block';
+                    
+                    // 刷新历史列表
+                    refreshHistory();
+                    
+                    console.log('新会话创建成功:', activeSessionId);
+                } else {
+                    console.error('创建新会话失败:', data);
+                }
+            } catch (error) {
+                console.error('创建新会话失败:', error);
+                alert('创建新会话失败，请稍后重试');
             }
         }
 
@@ -974,45 +1002,64 @@
             const searchTerm = historySearchInput.value.trim().toLowerCase();
             
             if (!searchTerm) {
-                filteredHistory = [];
+                filteredSessions = [];
                 renderHistory();
                 return;
             }
             
-            filteredHistory = conversationHistory.filter(item => {
-                return item.question.toLowerCase().includes(searchTerm) ||
-                       item.answer.toLowerCase().includes(searchTerm);
+            filteredSessions = allSessions.filter(session => {
+                return session.title.toLowerCase().includes(searchTerm);
             });
             
             renderHistory();
         }
 
-        // 清空对话历史
+        // 清空对话历史（仅清空前端显示，实际数据在Redis中）
         function clearHistory() {
-            if (confirm('确定要清空所有对话历史吗？此操作不可恢复。')) {
-                conversationHistory = [];
-                filteredHistory = [];
-                currentHistoryId = null;
-                saveHistory();
+            if (confirm('确定要清空对话历史显示吗？实际数据仍保存在服务器中。')) {
+                allSessions = [];
+                filteredSessions = [];
+                currentSessionId = null;
                 renderHistory();
             }
         }
 
         // 导出对话历史
-        function exportHistory() {
-            if (conversationHistory.length === 0) {
+        async function exportHistory() {
+            if (allSessions.length === 0) {
                 alert('暂无对话历史可导出');
                 return;
             }
             
-            const dataStr = JSON.stringify(conversationHistory, null, 2);
-            const dataBlob = new Blob([dataStr], { type: 'application/json' });
-            const url = URL.createObjectURL(dataBlob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `conversation_history_${new Date().toISOString().split('T')[0]}.json`;
-            link.click();
-            URL.revokeObjectURL(url);
+            try {
+                // 获取所有会话的详细对话记录
+                const exportData = [];
+                for (const session of allSessions) {
+                    const response = await fetch(API_URL + `api/sessions/${session.session_id}`);
+                    const data = await response.json();
+                    if (data.status === 200) {
+                        exportData.push({
+                            session_id: session.session_id,
+                            title: session.title,
+                            update_time: session.update_time,
+                            message_count: session.message_count,
+                            conversations: data.conversations
+                        });
+                    }
+                }
+                
+                const dataStr = JSON.stringify(exportData, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(dataBlob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `conversation_history_${new Date().toISOString().split('T')[0]}.json`;
+                link.click();
+                URL.revokeObjectURL(url);
+            } catch (error) {
+                console.error('导出对话历史失败:', error);
+                alert('导出失败，请稍后重试');
+            }
         }
 
         // HTML转义
@@ -1475,6 +1522,27 @@
             
             // 处理事件的函数（定义在循环外部）
             function processEvent(eventType, data) {
+                // 处理会话ID
+                if (eventType === 'session_id') {
+                    activeSessionId = data.session_id;
+                    // 保存到localStorage以便下次使用
+                    if (activeSessionId) {
+                        localStorage.setItem('currentSessionId', activeSessionId);
+                    }
+                }
+                
+                // 处理新会话创建
+                if (eventType === 'new_session_created') {
+                    if (data.new_session_id) {
+                        activeSessionId = data.new_session_id;
+                        localStorage.setItem('currentSessionId', activeSessionId);
+                        // 刷新历史列表
+                        refreshHistory();
+                        // 提示用户
+                        console.log('对话达到10条，已自动创建新会话');
+                    }
+                }
+                
                 // 处理搜索阶段更新
                 if (eventType === 'search_stage') {
                     const stageKey = data.stage;
@@ -1518,8 +1586,8 @@
                         searchPath: finalSearchPath
                     });
                     
-                    // 添加到对话历史
-                    addToHistory(message, fullResponse, finalSearchStages, finalSearchPath);
+                    // 刷新对话历史列表（对话已由后端自动保存到Redis）
+                    refreshHistory();
                 }
                 
                 // 处理错误
@@ -1529,13 +1597,22 @@
             }
             
             try {
+                // 获取或使用当前会话ID
+                if (!activeSessionId) {
+                    activeSessionId = localStorage.getItem('currentSessionId');
+                }
+                
                 // 发送流式请求
                 const response = await fetch(API_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ question: message, stream: true }),
+                    body: JSON.stringify({ 
+                        question: message, 
+                        stream: true,
+                        session_id: activeSessionId 
+                    }),
                 });
 
                 if (!response.ok) {
@@ -1615,7 +1692,7 @@
             if (confirm('确定要清空所有对话吗？')) {
                 chatContainer.innerHTML = '';
                 chatHistory = [];
-                currentHistoryId = null;
+                currentSessionId = null;
                 emptyState.style.display = 'block';
                 
                 // 更新历史列表的选中状态
@@ -1626,6 +1703,8 @@
         // 页面加载完成后初始化
         window.addEventListener('load', () => {
             messageInput.focus();
+            // 从localStorage加载当前会话ID
+            activeSessionId = localStorage.getItem('currentSessionId');
             loadHistory();
         });
     </script>
