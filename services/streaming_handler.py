@@ -56,6 +56,34 @@ async def chatbot_stream(
         'session_id': session_id
     })
     
+    # 上下文增强：从历史对话中提取信息，增强当前问题
+    enhanced_query = query
+    was_enhanced = False
+    try:
+        from core.cache.redis_client import get_redis_client, get_session_conversations
+        from core.context.enhancer import enhance_query_with_context
+        
+        # 获取对话历史
+        redis_client = get_redis_client()
+        history = get_session_conversations(redis_client, session_id)
+        
+        # 如果有历史记录，尝试增强问题
+        if history:
+            enhanced_query, was_enhanced = enhance_query_with_context(query, history, max_history=5)
+            
+            if was_enhanced:
+                print(f"✅ 问题已增强: {query} -> {enhanced_query}")
+                # 发送问题增强事件（可选，用于前端显示）
+                yield await send_event('query_enhanced', {
+                    'original_query': query,
+                    'enhanced_query': enhanced_query,
+                    'message': '问题已根据对话历史增强'
+                })
+    except Exception as e:
+        print(f"⚠️ 上下文增强失败，使用原问题: {str(e)}")
+        # 如果增强失败，使用原问题继续处理
+        enhanced_query = query
+    
     # 初始化搜索路径和结果追踪
     search_path = []
     search_stages = {
@@ -70,11 +98,11 @@ async def chatbot_stream(
         'message': '开始向量数据库检索...'
     })
     
-    # 1、向量数据库检索
+    # 1、向量数据库检索（使用增强后的问题）
     context = ""
     try:
         recall_rerank_milvus = milvus_vectorstore.similarity_search(
-            query,
+            enhanced_query,  # 使用增强后的问题
             k=10,
             ranker_type='rrf',
             ranker_params={'k': 100}
@@ -125,12 +153,12 @@ async def chatbot_stream(
         'message': '开始知识图谱查询...'
     })
     
-    # 2、知识图谱查询
+    # 2、知识图谱查询（使用增强后的问题）
     graph_context = ""
     current_api_url = graph_api_url
     
     try:
-        graph_data = {'natural_language_query': query}
+        graph_data = {'natural_language_query': enhanced_query}  # 使用增强后的问题
         
         try:
             graph_response = requests.post(
@@ -383,7 +411,7 @@ async def chatbot_stream(
         </context>
 
         <question>
-        {query}
+        {enhanced_query}
         </question>
     """
     
