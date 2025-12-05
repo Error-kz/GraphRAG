@@ -7790,3 +7790,171 @@ RETURN f.name
 2025-12-05 17:20:17,984 - services.graph_service - INFO - 查询执行成功，耗时: 0.088秒，返回 6 条记录
 2025-12-05 17:20:17,984 - services.graph_service - INFO - 查询执行完成，返回 6 条记录
 2025-12-05 17:38:13,740 - services.graph_service - INFO - Neo4j 连接已关闭
+2025-12-05 17:47:43,060 - services.graph_service - INFO - 成功连接到 Neo4j: neo4j://0.0.0.0:7687
+2025-12-05 18:00:09,462 - services.graph_service - INFO - 收到生成查询请求: 我一直咳嗽两三周了，应该怎么治疗？
+2025-12-05 18:00:09,870 - httpx - INFO - HTTP Request: POST https://api.deepseek.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-12-05 18:00:13,490 - services.graph_service - INFO - 生成的 Cypher 查询: MATCH (d:Disease)-[:has_symptom]->(s:Symptom) 
+WHERE s.name CONTAINS '咳嗽' 
+RETURN d.name AS disease_name, 
+       d.cure_way AS treatment_methods, 
+       d.cure_department AS recommended_department,
+       d.cure_lasttime AS treatment_duration,
+       d.cured_prob AS cure_probability
+2025-12-05 18:00:13,531 - httpx - INFO - HTTP Request: POST https://api.deepseek.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-12-05 18:00:25,831 - services.graph_service - INFO - 查询解释: 这个Cypher查询用于从Neo4j图数据库中查找与"咳嗽"相关的疾病信息。让我一步步解释：
+
+## 查询结构解析：
+
+1. **MATCH (d:Disease)-[:has_symptom]->(s:Symptom)**
+   - 匹配所有"疾病"节点（标签为Disease）和"症状"节点（标签为Symptom）之间的关系
+   - `d`代表疾病节点，`s`代表症状节点
+   - `has_symptom`是连接疾病和症状的关系类型
+
+2. **WHERE s.name CONTAINS '咳嗽'**
+   - 筛选条件：只选择症状名称中包含"咳嗽"的症状
+   - 比如"咳嗽"、"干咳"、"咳嗽带痰"等都会被匹配
+
+3. **RETURN** 部分返回以下信息：
+   - `d.name AS disease_name`：疾病名称
+   - `d.cure_way AS treatment_methods`：治疗方法
+   - `d.cure_department AS recommended_department`：推荐就诊科室
+   - `d.cure_lasttime AS treatment_duration`：治疗持续时间
+   - `d.cured_prob AS cure_probability`：治愈概率
+
+## 查询结果：
+这个查询会返回所有具有"咳嗽"症状的疾病，以及每种疾病的治疗信息，包括：
+- 疾病名称
+- 如何治疗
+- 应该去哪个科室就诊
+- 需要治疗多长时间
+- 治愈的可能性有多大
+
+## 实际应用场景：
+这类似于一个医疗咨询系统，当用户输入"咳嗽"症状时，系统会列出所有可能引起咳嗽的疾病及相关医疗信息，帮助用户了解可能的病因和就医建议。
+2025-12-05 18:00:25,832 - services.graph_service - INFO - 查询验证通过
+2025-12-05 18:00:25,848 - services.graph_service - INFO - 收到验证查询请求: MATCH (d:Disease)-[:has_symptom]->(s:Symptom) 
+WHERE s.name CONTAINS '咳嗽' 
+RETURN d.name AS disease_name, 
+       d.cure_way AS treatment_methods, 
+       d.cure_department AS recommended_department,
+       d.cure_lasttime AS treatment_duration,
+       d.cured_prob AS cure_probability
+2025-12-05 18:00:25,848 - services.graph_service - INFO - 查询验证通过
+2025-12-05 18:00:25,897 - services.graph_service - INFO - 收到执行查询请求: MATCH (d:Disease)-[:has_symptom]->(s:Symptom) 
+WHERE s.name CONTAINS '咳嗽' 
+RETURN d.name AS disease_name, 
+       d.cure_way AS treatment_methods, 
+       d.cure_department AS recommended_department,
+       d.cure_lasttime AS treatment_duration,
+       d.cured_prob AS cure_probability
+2025-12-05 18:00:25,903 - services.graph_service - INFO - 执行 Cypher 查询: MATCH (d:Disease)-[:has_symptom]->(s:Symptom) 
+WHERE s.name CONTAINS '咳嗽' 
+RETURN d.name AS disease_name, 
+       d.cure_way AS treatment_methods, 
+       d.cure_department AS recommended_department,
+       d.cure_lasttime AS treatment_duration,
+       d.cured_prob AS cure_probability
+2025-12-05 18:00:26,020 - services.graph_service - INFO - 查询执行成功，耗时: 0.115秒，返回 46 条记录
+2025-12-05 18:00:26,021 - services.graph_service - INFO - 查询执行完成，返回 46 条记录
+2025-12-05 18:11:16,825 - services.graph_service - INFO - 收到生成查询请求: 横膈下结肠嵌入综合征的治疗需要多久
+2025-12-05 18:11:16,932 - httpx - INFO - HTTP Request: POST https://api.deepseek.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-12-05 18:11:19,394 - services.graph_service - INFO - 生成的 Cypher 查询: MATCH (d:Disease) 
+WHERE d.name = '横膈下结肠嵌入综合征' 
+RETURN d.name, d.cure_lasttime
+2025-12-05 18:11:19,430 - httpx - INFO - HTTP Request: POST https://api.deepseek.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-12-05 18:11:31,725 - services.graph_service - INFO - 查询解释: 这个Cypher查询是用来从Neo4j图数据库中查找特定疾病信息的。让我详细解释一下：
+
+**查询目的：**
+查找名为"横膈下结肠嵌入综合征"的疾病，并返回该疾病的名称和治愈持续时间信息。
+
+**查询分解：**
+
+1. **`MATCH (d:Disease)`**
+   - 匹配所有标签为"Disease"（疾病）的节点
+   - 给这些节点起一个别名"d"（方便后续引用）
+
+2. **`WHERE d.name = '横膈下结肠嵌入综合征'`**
+   - 筛选条件：只选择名称为"横膈下结肠嵌入综合征"的疾病节点
+   - 这是精确匹配，不是模糊搜索
+
+3. **`RETURN d.name, d.cure_lasttime`**
+   - 返回结果：疾病的名称和治愈持续时间
+   - 假设`cure_lasttime`是疾病节点的一个属性，表示治愈所需时间
+
+**简单来说：**
+这个查询就像是在问数据库："请告诉我'横膈下结肠嵌入综合征'这个病的名称和它的治愈需要多长时间？"
+
+**可能的返回结果示例：**
+```
+╒══════════════════════════╤════════════════╕
+│d.name                    │d.cure_lasttime │
+╞══════════════════════════╪════════════════╡
+│横膈下结肠嵌入综合征      │3个月           │
+└──────────────────────────┴────────────────┘
+```
+
+这个查询结构简单直接，是Cypher中最基础的查找模式。
+2025-12-05 18:11:31,727 - services.graph_service - INFO - 查询验证通过
+2025-12-05 18:11:31,741 - services.graph_service - INFO - 收到验证查询请求: MATCH (d:Disease) 
+WHERE d.name = '横膈下结肠嵌入综合征' 
+RETURN d.name, d.cure_lasttime
+2025-12-05 18:11:31,741 - services.graph_service - INFO - 查询验证通过
+2025-12-05 18:11:31,747 - services.graph_service - INFO - 收到执行查询请求: MATCH (d:Disease) 
+WHERE d.name = '横膈下结肠嵌入综合征' 
+RETURN d.name, d.cure_lasttime
+2025-12-05 18:11:31,748 - services.graph_service - INFO - 执行 Cypher 查询: MATCH (d:Disease) 
+WHERE d.name = '横膈下结肠嵌入综合征' 
+RETURN d.name, d.cure_lasttime
+2025-12-05 18:11:31,821 - services.graph_service - INFO - 查询执行成功，耗时: 0.073秒，返回 1 条记录
+2025-12-05 18:11:31,821 - services.graph_service - INFO - 查询执行完成，返回 1 条记录
+2025-12-05 18:20:28,304 - services.graph_service - INFO - 收到生成查询请求: 横膈下结肠嵌入综合征的治疗需要多久
+2025-12-05 18:20:28,459 - httpx - INFO - HTTP Request: POST https://api.deepseek.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-12-05 18:20:30,859 - services.graph_service - INFO - 生成的 Cypher 查询: MATCH (d:Disease) 
+WHERE d.name = '横膈下结肠嵌入综合征' 
+RETURN d.name AS disease_name, d.cure_lasttime AS treatment_duration
+2025-12-05 18:20:30,905 - httpx - INFO - HTTP Request: POST https://api.deepseek.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-12-05 18:20:43,573 - services.graph_service - INFO - 查询解释: 这个Cypher查询是用来从Neo4j图数据库中查找特定疾病信息的。让我一步步解释：
+
+**查询目的：**
+查找名为"横膈下结肠嵌入综合征"的疾病，并返回它的名称和治疗持续时间。
+
+**查询分解：**
+
+1. **`MATCH (d:Disease)`**
+   - 匹配所有标签为"Disease"的节点
+   - 给这些节点起一个别名"d"（代表disease）
+
+2. **`WHERE d.name = '横膈下结肠嵌入综合征'`**
+   - 筛选条件：只选择名称正好是"横膈下结肠嵌入综合征"的疾病节点
+
+3. **`RETURN d.name AS disease_name, d.cure_lasttime AS treatment_duration`**
+   - 返回两个信息：
+     - 疾病名称（重命名为disease_name）
+     - 治疗持续时间（从cure_lasttime属性获取，重命名为treatment_duration）
+
+**简单来说：**
+这个查询就像是在问数据库："请告诉我'横膈下结肠嵌入综合征'这个病的名称和它的治疗需要多长时间？"
+
+**返回结果示例：**
+```
+╔══════════════════════════╦═════════════════════╗
+║ disease_name             ║ treatment_duration  ║
+╠══════════════════════════╬═════════════════════╣
+║ 横膈下结肠嵌入综合征     ║ 3个月               ║
+╚══════════════════════════╩═════════════════════╝
+```
+
+这个查询结构简单直接，是Cypher中最基础的查询模式之一。
+2025-12-05 18:20:43,574 - services.graph_service - INFO - 查询验证通过
+2025-12-05 18:20:43,586 - services.graph_service - INFO - 收到验证查询请求: MATCH (d:Disease) 
+WHERE d.name = '横膈下结肠嵌入综合征' 
+RETURN d.name AS disease_name, d.cure_lasttime AS treatment_duration
+2025-12-05 18:20:43,587 - services.graph_service - INFO - 查询验证通过
+2025-12-05 18:20:43,592 - services.graph_service - INFO - 收到执行查询请求: MATCH (d:Disease) 
+WHERE d.name = '横膈下结肠嵌入综合征' 
+RETURN d.name AS disease_name, d.cure_lasttime AS treatment_duration
+2025-12-05 18:20:43,593 - services.graph_service - INFO - 执行 Cypher 查询: MATCH (d:Disease) 
+WHERE d.name = '横膈下结肠嵌入综合征' 
+RETURN d.name AS disease_name, d.cure_lasttime AS treatment_duration
+2025-12-05 18:20:43,673 - services.graph_service - INFO - 查询执行成功，耗时: 0.079秒，返回 1 条记录
+2025-12-05 18:20:43,673 - services.graph_service - INFO - 查询执行完成，返回 1 条记录

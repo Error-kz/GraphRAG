@@ -111,6 +111,9 @@ def save_conversation_history(r: redis.Redis, session_id: str, question: str, an
                     break
             except:
                 continue
+    else:
+        # 如果不是第一条对话，更新消息数量
+        update_session_message_count(r, session_id)
     
     # 限制历史记录数量，只保留最近10条
     max_history = 10
@@ -174,6 +177,49 @@ def create_session_in_history(r: redis.Redis, session_id: str, title: str = "新
     r.expire(sessions_key, 2592000)
 
 
+def update_session_message_count(r: redis.Redis, session_id: str):
+    """
+    更新历史记录列表中会话的消息数量
+    
+    Args:
+        r: Redis客户端实例
+        session_id: 会话ID
+    """
+    sessions_key = 'chat:sessions:list'
+    
+    # 获取所有会话
+    sessions = r.zrevrange(sessions_key, 0, -1)
+    
+    # 查找并更新指定会话
+    for session_json in sessions:
+        try:
+            session_info = json.loads(session_json)
+            if session_info.get('session_id') == session_id:
+                # 实时计算消息数量
+                key = f'chat:history:{session_id}'
+                history_list = r.lrange(key, 0, -1)
+                new_message_count = len(history_list)
+                
+                # 如果消息数量有变化，更新会话信息
+                if session_info.get('message_count') != new_message_count:
+                    session_info['message_count'] = new_message_count
+                    # 更新最后一条记录的时间
+                    if history_list:
+                        last_record = json.loads(history_list[-1])
+                        session_info['update_time'] = last_record.get('timestamp', datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+                    
+                    # 删除旧的，添加新的（保持时间戳不变，只更新内容）
+                    # 获取原来的时间戳
+                    old_score = r.zscore(sessions_key, session_json)
+                    if old_score is not None:
+                        r.zrem(sessions_key, session_json)
+                        r.zadd(sessions_key, {json.dumps(session_info, ensure_ascii=False): old_score})
+                break
+        except Exception as e:
+            print(f"更新会话消息数量失败: {str(e)}")
+            continue
+
+
 def update_session_title(r: redis.Redis, session_id: str, new_title: str):
     """
     更新历史记录列表中会话的标题
@@ -205,10 +251,13 @@ def update_session_title(r: redis.Redis, session_id: str, new_title: str):
                     session_info['update_time'] = last_record.get('timestamp', datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
                 
                 # 删除旧的，添加新的
-                r.zrem(sessions_key, session_json)
-                r.zadd(sessions_key, {json.dumps(session_info, ensure_ascii=False): datetime.now().timestamp()})
+                old_score = r.zscore(sessions_key, session_json)
+                if old_score is not None:
+                    r.zrem(sessions_key, session_json)
+                    r.zadd(sessions_key, {json.dumps(session_info, ensure_ascii=False): old_score})
                 break
-        except:
+        except Exception as e:
+            print(f"更新会话标题失败: {str(e)}")
             continue
 
 
@@ -263,13 +312,14 @@ def save_session_to_history(r: redis.Redis, session_id: str, first_question: str
 def get_conversation_history_list(r: redis.Redis, limit: int = 50):
     """
     获取历史会话列表
+    实时计算每个会话的消息数量，确保 message_count 准确
     
     Args:
         r: Redis客户端实例
         limit: 返回的最大数量，默认50
         
     Returns:
-        list: 会话信息列表，按时间倒序排列
+        list: 会话信息列表，按时间倒序排列，message_count 已实时更新
     """
     sessions_key = 'chat:sessions:list'
     
@@ -280,8 +330,21 @@ def get_conversation_history_list(r: redis.Redis, limit: int = 50):
     for session_json in sessions:
         try:
             session_info = json.loads(session_json)
+            session_id = session_info.get('session_id')
+            
+            # 实时计算消息数量
+            if session_id:
+                key = f'chat:history:{session_id}'
+                history_list = r.lrange(key, 0, -1)
+                session_info['message_count'] = len(history_list)
+                
+                # 如果消息数量有变化，更新会话列表中的记录
+                # 但这里不更新，因为会影响排序，只在返回时更新 message_count
+                # 如果需要持久化更新，可以调用 update_session_message_count
+            
             result.append(session_info)
-        except:
+        except Exception as e:
+            print(f"处理会话信息失败: {str(e)}")
             continue
     
     return result
