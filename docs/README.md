@@ -289,24 +289,55 @@ pip install -r requirements.txt
 
 ### 配置环境变量 / API Key
 
-主要配置集中在 [`config/settings.py`](../config/settings.py)，支持从环境变量中读取：
+主要配置集中在 [`config/settings.py`](../config/settings.py)，支持从 `.env` 文件或环境变量中读取。
 
-- LLM 与 Embedding：
-  - `DEEPSEEK_API_KEY`
-  - `ZHIPU_API_KEY`
-- Neo4j：
-  - `NEO4J_URI`
-  - `NEO4J_USER`
-  - `NEO4J_PASSWORD`
-- Redis（可选）：
-  - `REDIS_HOST` / `REDIS_PORT` / `REDIS_PASSWORD`
-- 服务端口：
-  - `AGENT_SERVICE_PORT`（默认 `8103`）
-  - `GRAPH_SERVICE_PORT`（默认 `8101`）
+#### 快速开始
 
-> ⚠️ 建议通过系统环境变量配置敏感信息，**不推荐** 在代码中硬编码 API Key 和密码。
+1. **复制环境变量模板**：
+   ```bash
+   cp .env.example .env
+   ```
 
-> 详细配置说明请查看：`config/README.md`
+2. **编辑 `.env` 文件**，填写您的配置：
+   ```bash
+   # 必需：OpenRouter API Key
+   OPENROUTER_API_KEY=your_openrouter_api_key_here
+   
+   # Neo4j 配置
+   NEO4J_URI=bolt://localhost:7687
+   NEO4J_USER=neo4j
+   NEO4J_PASSWORD=your_password
+   ```
+
+#### 主要配置项
+
+- **OpenRouter API**（统一管理所有大模型调用）：
+  - `OPENROUTER_API_KEY`：OpenRouter API Key（**必需**）
+    - 获取方式：访问 https://openrouter.ai/keys 注册并获取
+  - `OPENROUTER_LLM_MODEL`：LLM 模型（默认：`deepseek/deepseek-chat`）
+    - 可选：`openai/gpt-4`、`openai/gpt-3.5-turbo`、`anthropic/claude-3-opus` 等
+  - `OPENROUTER_EMBEDDING_MODEL`：Embedding 模型（默认：`zhipuai/glm-4-embedding`）
+    - 可选：`openai/text-embedding-ada-002`、`cohere/embed-english-v3.0` 等
+
+- **Neo4j 图数据库**：
+  - `NEO4J_URI`：数据库地址（默认：`bolt://localhost:7687`）
+  - `NEO4J_USER`：用户名（默认：`neo4j`）
+  - `NEO4J_PASSWORD`：密码
+
+- **Redis 缓存**（可选）：
+  - `REDIS_HOST`（默认：`0.0.0.0`）
+  - `REDIS_PORT`（默认：`6379`）
+  - `REDIS_PASSWORD`（可选）
+
+- **服务端口**：
+  - `AGENT_SERVICE_PORT`（默认：`8103`）
+  - `GRAPH_SERVICE_PORT`（默认：`8101`）
+
+> ⚠️ **重要提示**：
+> - `.env` 文件包含敏感信息，已被 `.gitignore` 忽略，不会提交到代码仓库
+> - 建议通过 `.env` 文件配置，而不是系统环境变量
+> - 详细配置说明请查看：`config/README.md`
+> - 迁移指南：`docs/migration_to_openrouter.md`
 
 ---
 

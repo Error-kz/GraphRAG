@@ -1,0 +1,95 @@
+{
+  "version": "1.0",
+  "domain": "medical",
+  "nodes": [
+    {
+      "label": "Disease",
+      "properties": {
+        "name": "string",
+        "desc": "string",
+        "prevent": "string",
+        "cause": "string",
+        "yibao_status": "string",
+        "get_prob": "string",
+        "get_way": "string",
+        "cure_lasttime": "string",
+        "cured_prob": "string",
+        "cost_money": "string"
+      }
+    },
+    {
+      "label": "Symptom",
+      "properties": {
+        "name": "string"
+      }
+    },
+    {
+      "label": "Department",
+      "properties": {
+        "name": "string"
+      }
+    },
+    {
+      "label": "Check",
+      "properties": {
+        "name": "string"
+      }
+    },
+    {
+      "label": "Category",
+      "properties": {
+        "name": "string"
+      }
+    },
+    {
+      "label": "Acompany",
+      "properties": {
+        "name": "string"
+      }
+    },
+    {
+      "label": "CureWay",
+      "properties": {
+        "name": "string"
+      }
+    }
+  ],
+  "relationships": [
+    {
+      "type": "has_symptom",
+      "from_node": "Disease",
+      "to_node": "Symptom",
+      "properties": {}
+    },
+    {
+      "type": "belongs_to_category",
+      "from_node": "Disease",
+      "to_node": "Category",
+      "properties": {}
+    },
+    {
+      "type": "has_acompany",
+      "from_node": "Disease",
+      "to_node": "Acompany",
+      "properties": {}
+    },
+    {
+      "type": "cured_by",
+      "from_node": "Disease",
+      "to_node": "CureWay",
+      "properties": {}
+    },
+    {
+      "type": "needs_check",
+      "from_node": "Disease",
+      "to_node": "Check",
+      "properties": {}
+    },
+    {
+      "type": "treated_in",
+      "from_node": "Disease",
+      "to_node": "Department",
+      "properties": {}
+    }
+  ]
+}
