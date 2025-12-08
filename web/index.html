@@ -1206,6 +1206,34 @@
                 headerDiv.appendChild(statusDiv);
                 stageDiv.appendChild(headerDiv);
 
+                // 如果是知识图谱查询且状态为进行中，显示不同阶段的等待提示
+                if (stageKey === 'knowledge_graph' && stage.status === 'pending') {
+                    const waitingDiv = document.createElement('div');
+                    waitingDiv.className = 'stage-info';
+                    waitingDiv.style.color = 'var(--warning-color)';
+                    waitingDiv.style.fontStyle = 'italic';
+                    waitingDiv.style.marginTop = '8px';
+                    
+                    // 根据 stage_detail 显示不同的提示信息
+                    const stageDetail = stage.stage_detail || 'generating';
+                    let message = '';
+                    switch(stageDetail) {
+                        case 'generating':
+                            message = '⏳ 正在调用大模型生成 Cypher 查询语句，请稍候...';
+                            break;
+                        case 'validating':
+                            message = '✅ Cypher 查询已生成，正在验证查询语句的有效性...';
+                            break;
+                        case 'executing':
+                            message = '✅ 查询验证通过，正在执行查询并获取结果...';
+                            break;
+                        default:
+                            message = '⏳ 正在处理知识图谱查询，请稍候...';
+                    }
+                    waitingDiv.innerHTML = message;
+                    stageDiv.appendChild(waitingDiv);
+                }
+
                 // 显示数量信息
                 if (stage.count !== undefined) {
                     const infoDiv = document.createElement('div');
@@ -1486,7 +1514,7 @@
             // 初始化搜索阶段状态
             const searchStages = {
                 'milvus_vector': { status: 'pending', results: [], count: 0, description: '向量数据库检索' },
-                'knowledge_graph': { status: 'pending', results: [], count: 0, description: '知识图谱查询', cypher_query: '', confidence: 0 }
+                'knowledge_graph': { status: 'pending', results: [], count: 0, description: '知识图谱查询', cypher_query: '', confidence: 0, stage_detail: 'generating' }
             };
             
             // 更新搜索阶段显示的函数
@@ -1522,6 +1550,47 @@
                 headerDiv.appendChild(nameDiv);
                 headerDiv.appendChild(statusDiv);
                 stageDiv.appendChild(headerDiv);
+                
+                // 如果是知识图谱查询且状态为进行中，显示不同阶段的等待提示
+                if (stageKey === 'knowledge_graph' && stageData.status === 'pending') {
+                    // 查找是否已存在等待提示元素，如果存在则先移除
+                    const existingWaitingDiv = stageDiv.querySelector('.stage-info.waiting-prompt');
+                    if (existingWaitingDiv) {
+                        existingWaitingDiv.remove();
+                    }
+                    
+                    const waitingDiv = document.createElement('div');
+                    waitingDiv.className = 'stage-info waiting-prompt';
+                    waitingDiv.style.color = 'var(--warning-color)';
+                    waitingDiv.style.fontStyle = 'italic';
+                    waitingDiv.style.marginTop = '8px';
+                    
+                    // 根据 stage_detail 显示不同的提示信息
+                    // 确保从 stageData 中正确读取 stage_detail
+                    const stageDetail = stageData.stage_detail || 'generating';
+                    // 调试日志：确认读取的 stage_detail 值
+                    console.log('updateSearchStage - stageKey:', stageKey);
+                    console.log('updateSearchStage - stage_detail 值:', stageDetail);
+                    console.log('updateSearchStage - 完整的 stageData:', JSON.stringify(stageData, null, 2));
+                    let message = '';
+                    switch(stageDetail) {
+                        case 'generating':
+                            message = '⏳ 正在调用大模型生成 Cypher 查询语句，请稍候...';
+                            break;
+                        case 'validating':
+                            message = '✅ Cypher 查询已生成，正在验证查询语句的有效性...';
+                            break;
+                        case 'executing':
+                            message = '✅ 查询验证通过，正在执行查询并获取结果...';
+                            break;
+                        default:
+                            message = '⏳ 正在处理知识图谱查询，请稍候...';
+                            console.warn('updateSearchStage - 未知的 stage_detail 值:', stageDetail);
+                    }
+                    console.log('updateSearchStage - 显示的消息:', message);
+                    waitingDiv.innerHTML = message;
+                    stageDiv.appendChild(waitingDiv);
+                }
                 
                 // 显示数量信息
                 if (stageData.count !== undefined) {
@@ -1608,18 +1677,33 @@
                 // 处理搜索阶段更新
                 if (eventType === 'search_stage') {
                     const stageKey = data.stage;
+                    // 先更新 searchStages 对象
                     if (stageKey === 'milvus_vector') {
                         searchStages.milvus_vector = {
                             ...searchStages.milvus_vector,
                             ...data
                         };
                     } else if (stageKey === 'knowledge_graph') {
+                        // 确保 stage_detail 字段被正确更新
                         searchStages.knowledge_graph = {
                             ...searchStages.knowledge_graph,
                             ...data
                         };
+                        // 调试日志：确认 stage_detail 更新
+                        console.log('知识图谱阶段更新 - 接收到的数据:', data);
+                        console.log('知识图谱阶段更新 - 更新后的 searchStages:', searchStages.knowledge_graph);
                     }
-                    updateSearchStage(stageKey, searchStages[stageKey]);
+                    // 使用合并后的最新数据更新显示（确保包含所有字段，特别是 stage_detail）
+                    const updatedData = {
+                        ...searchStages[stageKey],
+                        ...data  // 再次合并 data，确保 stage_detail 等字段优先使用最新值
+                    };
+                    // 调试日志：确认传递给 updateSearchStage 的数据
+                    if (stageKey === 'knowledge_graph') {
+                        console.log('准备调用 updateSearchStage - updatedData:', updatedData);
+                        console.log('updatedData.stage_detail:', updatedData.stage_detail);
+                    }
+                    updateSearchStage(stageKey, updatedData);
                 }
                 
                 // 处理回答开始
@@ -1722,6 +1806,11 @@
                             if (pendingData && currentEventType) {
                                 try {
                                     const data = JSON.parse(pendingData);
+                                    // 调试日志：记录接收到的 search_stage 事件
+                                    if (currentEventType === 'search_stage' && data.stage === 'knowledge_graph') {
+                                        console.log('接收到 search_stage 事件:', currentEventType, data);
+                                        console.log('stage_detail 值:', data.stage_detail);
+                                    }
                                     processEvent(currentEventType, data);
                                 } catch (e) {
                                     console.error('解析SSE数据失败:', e, pendingData);

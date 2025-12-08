@@ -150,7 +150,8 @@ async def chatbot_stream(
     yield await send_event('search_stage', {
         'stage': 'knowledge_graph',
         'status': 'pending',
-        'message': '开始知识图谱查询...'
+        'message': '开始知识图谱查询...',
+        'stage_detail': 'generating'  # 正在生成 Cypher 查询
     })
     
     # 2、知识图谱查询（使用增强后的问题）
@@ -186,13 +187,14 @@ async def chatbot_stream(
             search_stages['knowledge_graph']['cypher_query'] = cypher_query or ''
             search_stages['knowledge_graph']['confidence'] = float(confidence) if confidence else 0
             
-            # 发送Cypher查询生成事件
+            # 发送Cypher查询生成完成事件
             yield await send_event('search_stage', {
                 'stage': 'knowledge_graph',
                 'status': 'pending',
                 'cypher_query': cypher_query or '',
                 'confidence': float(confidence) if confidence else 0,
-                'message': f'已生成Cypher查询，置信度: {confidence}'
+                'message': f'已生成Cypher查询，置信度: {confidence}',
+                'stage_detail': 'validating'  # 切换到验证阶段
             })
             
             if cypher_query and float(confidence) >= 0.7 and is_valid:
@@ -210,6 +212,15 @@ async def chatbot_stream(
                 if validate_response.status_code == 200:
                     validate_data = validate_response.json()
                     if validate_data.get('is_valid', False):
+                        # 发送验证通过事件，切换到执行阶段
+                        yield await send_event('search_stage', {
+                            'stage': 'knowledge_graph',
+                            'status': 'pending',
+                            'cypher_query': cypher_query or '',
+                            'confidence': float(confidence) if confidence else 0,
+                            'stage_detail': 'executing'  # 切换到执行阶段
+                        })
+                        
                         # 执行查询
                         execute_data = {'cypher_query': cypher_query}
                         execute_response = requests.post(
