@@ -19,9 +19,12 @@ from typing import List, Dict, Any
 from config.settings import settings
 from config.neo4j_config import NEO4J_CONFIG
 from core.graph.models import NL2CypherRequest, CypherResponse, ValidationRequest, ValidationResponse
-from core.graph.schemas import EXAMPLE_SCHEMA
+from core.graph.schemas import EXAMPLE_SCHEMA, GraphSchema
 from core.graph.prompts import create_system_prompt, create_validation_prompt
 from core.graph.validators import CypherValidator, RuleBasedValidator
+from core.framework import SchemaConfig, PromptGenerator
+from pydantic import BaseModel
+from typing import Optional
 
 # 加载环境变量
 load_dotenv()
@@ -184,20 +187,102 @@ def clean_cypher_query(cypher_query: str) -> str:
     cypher_query = re.sub(r'^```(?:cypher)?\s*', '', cypher_query, flags=re.IGNORECASE)
     cypher_query = re.sub(r'```\s*$', '', cypher_query)
     
+    # 提取实际的 Cypher 查询部分（移除说明文字）
+    # 查找第一个 MATCH、CREATE、MERGE 等关键字，之前的内容可能是说明
+    cypher_keywords = r'\b(MATCH|CREATE|MERGE|DELETE|SET|REMOVE|WITH|UNWIND|CALL|RETURN|START)\b'
+    match = re.search(cypher_keywords, cypher_query, re.IGNORECASE)
+    if match:
+        # 从第一个关键字开始提取
+        cypher_query = cypher_query[match.start():]
+    
+    # 如果包含说明文字（如 "# 说明"、"# Cypher查询" 等），移除说明部分
+    # 查找最后一个 RETURN 语句，之后可能是说明
+    return_matches = list(re.finditer(r'\bRETURN\b', cypher_query, re.IGNORECASE))
+    if return_matches:
+        last_return = return_matches[-1]
+        # 查找 RETURN 之后的内容
+        after_return = cypher_query[last_return.end():]
+        # 提取 RETURN 子句（到行尾或分号）
+        return_clause_match = re.search(r'^[^\n#]*', after_return, re.MULTILINE)
+        if return_clause_match:
+            # 找到 RETURN 子句的结束位置
+            return_end = last_return.end() + return_clause_match.end()
+            # 检查后面是否有说明文字（以 # 开头的行）
+            remaining = cypher_query[return_end:]
+            if remaining.strip():
+                # 查找第一个以 # 开头的行
+                comment_match = re.search(r'\n\s*#', remaining)
+                if comment_match:
+                    # 截取到说明文字之前
+                    cypher_query = cypher_query[:return_end].strip()
+                else:
+                    # 如果没有 # 注释，保留到 RETURN 子句结束
+                    cypher_query = cypher_query[:return_end].strip()
+            else:
+                cypher_query = cypher_query[:return_end].strip()
+    
     # 移除 Cypher 多行注释 /* ... */
     cypher_query = re.sub(r'/\*.*?\*/', '', cypher_query, flags=re.DOTALL)
     
-    # 移除 Cypher 单行注释 // ...
+    # 移除 Cypher 单行注释 // ... 和 # ...
     lines = []
+    found_return = False  # 标记是否已经找到 RETURN 语句
+    
     for line in cypher_query.split('\n'):
+        # 检查是否包含 RETURN 语句
+        if re.search(r'\bRETURN\b', line, re.IGNORECASE):
+            found_return = True
+        
+        # 如果已经找到 RETURN，且当前行以 # 开头，说明是说明文字，跳过
+        if found_return and line.strip().startswith('#'):
+            continue
+        
+        # 处理 // 注释
         if '//' in line:
             comment_pos = line.find('//')
             if comment_pos >= 0:
                 line = line[:comment_pos].rstrip()
+        
+        # 处理 # 注释（整行注释或行尾注释）
+        if '#' in line:
+            # 检查是否是字符串中的 #（在引号内）
+            in_string = False
+            quote_char = None
+            comment_pos = -1
+            
+            for i, char in enumerate(line):
+                if char in ['"', "'"] and (i == 0 or line[i-1] != '\\'):
+                    if not in_string:
+                        in_string = True
+                        quote_char = char
+                    elif char == quote_char:
+                        in_string = False
+                        quote_char = None
+                elif char == '#' and not in_string:
+                    comment_pos = i
+                    break
+            
+            if comment_pos >= 0:
+                line = line[:comment_pos].rstrip()
+        
+        # 只保留非空行
         if line.strip():
             lines.append(line)
     
     cypher_query = '\n'.join(lines)
+    
+    # 最后清理：移除所有以 # 开头的行（说明文字）
+    final_lines = []
+    for line in cypher_query.split('\n'):
+        if not line.strip().startswith('#'):
+            final_lines.append(line)
+        elif line.strip() and not re.search(r'\b(MATCH|CREATE|MERGE|RETURN|WHERE|WITH)\b', line, re.IGNORECASE):
+            # 如果是以 # 开头的行，且不包含 Cypher 关键字，则跳过
+            continue
+        else:
+            final_lines.append(line)
+    
+    cypher_query = '\n'.join(final_lines).strip()
     
     # 检测并合并多个独立查询（必须在其他修复之前进行）
     cypher_query = merge_multiple_queries(cypher_query)
@@ -235,35 +320,6 @@ def clean_cypher_query(cypher_query: str) -> str:
         flags=re.IGNORECASE
     )
     
-    # 修复可能不存在的关系类型：将 drugs_of 关系转换为 OPTIONAL MATCH
-    # 如果查询是 MATCH (d:Drug)-[:drugs_of]->(p:Producer) 形式，转换为 OPTIONAL MATCH
-    # 这样可以避免关系不存在时的查询失败
-    if re.search(r'\bdrugs_of\b', cypher_query, re.IGNORECASE):
-        if not re.search(r'OPTIONAL\s+MATCH.*drugs_of', cypher_query, re.IGNORECASE):
-            # 匹配模式：MATCH (var:Label)-[:drugs_of]->(target)
-            def convert_drugs_of(match):
-                full_match = match.group(0)
-                # 提取节点变量和标签
-                node_match = re.search(r'MATCH\s+\((\w+)(?::(\w+))?\)', full_match, re.IGNORECASE)
-                if node_match:
-                    node_var = node_match.group(1)
-                    node_label = node_match.group(2) if node_match.group(2) else ''
-                    # 提取关系部分
-                    rel_match = re.search(r'(-\[[^\]]*drugs_of[^\]]*\][^W]*)', full_match, re.IGNORECASE | re.DOTALL)
-                    if rel_match:
-                        rel_part = rel_match.group(1)
-                        label_str = f':{node_label}' if node_label else ''
-                        return f"MATCH ({node_var}{label_str})\nOPTIONAL MATCH ({node_var}){rel_part}"
-                return full_match
-            
-            # 替换 MATCH ... -[:drugs_of]-> 模式
-            cypher_query = re.sub(
-                r'MATCH\s+\([^)]+\)\s*-\[[^\]]*drugs_of[^\]]*\][^W]*(?=WHERE|RETURN|$)',
-                convert_drugs_of,
-                cypher_query,
-                count=1,
-                flags=re.IGNORECASE | re.DOTALL
-            )
     
     # 清理多余的空行
     cypher_query = re.sub(r'\n\s*\n+', '\n', cypher_query)
@@ -318,9 +374,35 @@ app.add_middleware(
 )
 
 
-def generate_cypher_query(natural_language: str, query_type: str = None) -> str:
-    """使用 OpenRouter LLM 生成 Cypher 查询"""
-    system_prompt = create_system_prompt(str(EXAMPLE_SCHEMA.model_dump()))
+def generate_cypher_query(natural_language: str, query_type: str = None, 
+                          schema: GraphSchema = None, domain: str = None, version: str = None) -> str:
+    """
+    使用 OpenRouter LLM 生成 Cypher 查询
+    
+    Args:
+        natural_language: 自然语言查询
+        query_type: 查询类型
+        schema: GraphSchema对象（可选，如果提供则使用动态模式）
+        domain: 领域名称（可选，如果提供则从配置加载模式）
+        version: 版本号（可选，配合domain使用）
+    """
+    # 确定使用的模式
+    if schema:
+        # 使用提供的模式
+        prompt_generator = PromptGenerator(schema)
+        system_prompt = prompt_generator.generate_system_prompt()
+    elif domain:
+        # 从配置加载模式
+        config_manager = SchemaConfig()
+        loaded_schema = config_manager.load_schema(domain, version)
+        if not loaded_schema:
+            raise HTTPException(status_code=404, detail=f"无法加载模式: {domain} v{version or 'latest'}")
+        prompt_generator = PromptGenerator(loaded_schema)
+        system_prompt = prompt_generator.generate_system_prompt()
+    else:
+        # 使用默认模式
+        system_prompt = create_system_prompt(str(EXAMPLE_SCHEMA.model_dump()))
+    
     user_prompt = natural_language
     if query_type:
         user_prompt = f"{query_type}查询: {natural_language}"
@@ -526,10 +608,89 @@ async def root():
 
 
 @app.get("/schema")
-async def get_schema():
-    """获取图模式端点"""
-    logger.info("获取图模式请求")
-    return EXAMPLE_SCHEMA.model_dump()
+async def get_schema(domain: Optional[str] = None, version: Optional[str] = None):
+    """
+    获取图模式端点
+    
+    Args:
+        domain: 领域名称（可选，如果不提供则返回默认模式）
+        version: 版本号（可选，配合domain使用）
+    """
+    logger.info(f"获取图模式请求 - domain: {domain}, version: {version}")
+    
+    if domain:
+        # 从配置加载模式
+        config_manager = SchemaConfig()
+        schema = config_manager.load_schema(domain, version)
+        if not schema:
+            raise HTTPException(status_code=404, detail=f"无法加载模式: {domain} v{version or 'latest'}")
+        return schema.model_dump()
+    else:
+        # 返回默认模式
+        return EXAMPLE_SCHEMA.model_dump()
+
+
+class DynamicNL2CypherRequest(BaseModel):
+    """动态 NL2Cypher 请求模型"""
+    natural_language_query: str
+    query_type: Optional[str] = None
+    domain: Optional[str] = None
+    version: Optional[str] = None
+
+
+@app.post("/generate-dynamic", response_model=CypherResponse)
+async def generate_cypher_dynamic(request: DynamicNL2CypherRequest):
+    """
+    生成Cypher查询端点（支持动态模式）
+    
+    支持通过 domain 和 version 参数动态加载图模式
+    """
+    logger.info(f"收到动态生成查询请求: {request.natural_language_query}, domain: {request.domain}")
+    
+    try:
+        cypher_query = generate_cypher_query(
+            request.natural_language_query,
+            request.query_type,
+            domain=request.domain,
+            version=request.version
+        )
+        logger.info(f"生成的 Cypher 查询: {cypher_query}")
+        
+        explanation = explain_cypher_query(cypher_query)
+        logger.info(f"查询解释: {explanation}")
+        
+        # 加载用于验证的模式
+        if request.domain:
+            config_manager = SchemaConfig()
+            validation_schema = config_manager.load_schema(request.domain, request.version)
+            if not validation_schema:
+                logger.warning(f"无法加载验证模式: {request.domain} v{request.version or 'latest'}")
+                validation_schema = EXAMPLE_SCHEMA
+        else:
+            validation_schema = EXAMPLE_SCHEMA
+        
+        is_valid, errors = app.state.validator.validate_against_schema(cypher_query, validation_schema)
+        if errors:
+            logger.warning(f"查询验证发现错误: {errors}")
+        else:
+            logger.info("查询验证通过")
+        
+        confidence = 0.9
+        if errors:
+            confidence = max(0.3, confidence - len(errors) * 0.1)
+        
+        return CypherResponse(
+            cypher_query=cypher_query,
+            explanation=explanation,
+            confidence=confidence,
+            validated=is_valid,
+            validation_errors=errors
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"生成查询时发生异常: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"生成查询失败: {str(e)}")
 
 
 if __name__ == "__main__":

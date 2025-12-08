@@ -158,12 +158,12 @@ async def root():
     if web_file.exists():
         return FileResponse(str(web_file))
     return {
-        "service": "医学助手 Agent 服务",
+        "service": "助手 Agent 服务",
         "status": "运行中",
         "version": "1.0",
         "endpoints": {
             "GET /": "前端页面（如果存在）或服务信息",
-            "POST /": "医学问答接口，需要传递 {'question': '你的问题'}"
+            "POST /": "问答接口，需要传递 {'question': '你的问题'}"
         },
         "port": settings.AGENT_SERVICE_PORT
     }
@@ -172,12 +172,12 @@ async def root():
 async def api_info():
     """API信息接口"""
     return {
-        "service": "医学助手 Agent 服务",
+        "service": "助手 Agent 服务",
         "status": "运行中",
         "version": "1.0",
         "endpoints": {
             "GET /": "前端页面",
-            "POST /": "医学问答接口，需要传递 {'question': '你的问题'}",
+            "POST /": "问答接口，需要传递 {'question': '你的问题'}",
             "GET /api/info": "API信息",
             "POST /api/new_session": "创建新会话",
             "GET /api/sessions": "获取历史会话列表"
@@ -429,42 +429,6 @@ async def chatbot(request: Request):
                             if execute_result.get('success') and execute_result.get('records'):
                                 records = execute_result['records']
                                 
-                                # 解析Cypher查询，提取关键信息
-                                relationship_type = None
-                                disease_name = None
-                                entity_type = None
-                                
-                                rel_match = re.search(r'\[[^:]*:(.*?)\]', cypher_query)
-                                if rel_match:
-                                    relationship_type = rel_match.group(1).strip()
-                                
-                                disease_match = re.search(r"p\.name\s*=\s*['\"](.*?)['\"]", cypher_query)
-                                if disease_match:
-                                    disease_name = disease_match.group(1)
-                                
-                                return_match = re.search(r'RETURN\s+(\w+)\.name', cypher_query, re.IGNORECASE)
-                                if return_match:
-                                    var_name = return_match.group(1)
-                                    var_def_match = re.search(rf'\({var_name}:(\w+)\)', cypher_query)
-                                    if var_def_match:
-                                        entity_type = var_def_match.group(1)
-                                
-                                # 关系类型描述映射
-                                relationship_descriptions = {
-                                    'not_eat': '不能吃',
-                                    'do_eat': '适合吃',
-                                    'recommand_eat': '推荐吃',
-                                    'has_symptom': '的症状',
-                                    'recommand_drug': '推荐使用的药物',
-                                    'command_drug': '推荐使用的药物',
-                                    'need_check': '需要做的检查',
-                                    'belongs_to': '所属科室',
-                                    'acompany_with': '的并发症',
-                                    'drugs_of': '的生产厂商'
-                                }
-                                
-                                relationship_desc = relationship_descriptions.get(relationship_type, '相关')
-                                
                                 # 格式化知识图谱查询结果
                                 graph_results = []
                                 entity_names = []
@@ -488,24 +452,7 @@ async def chatbot(request: Request):
                                 
                                 # 生成描述性文本
                                 if entity_names:
-                                    if disease_name and relationship_desc:
-                                        if relationship_type in ['not_eat', 'do_eat', 'recommand_eat']:
-                                            graph_results.append(f"{disease_name}患者{relationship_desc}的食物：{', '.join(entity_names)}")
-                                        elif relationship_type == 'has_symptom':
-                                            graph_results.append(f"{disease_name}{relationship_desc}：{', '.join(entity_names)}")
-                                        elif relationship_type in ['recommand_drug', 'command_drug']:
-                                            graph_results.append(f"{disease_name}{relationship_desc}：{', '.join(entity_names)}")
-                                        elif relationship_type == 'need_check':
-                                            graph_results.append(f"{disease_name}{relationship_desc}：{', '.join(entity_names)}")
-                                        elif relationship_type == 'belongs_to':
-                                            graph_results.append(f"{disease_name}{relationship_desc}：{', '.join(entity_names)}")
-                                        elif relationship_type == 'acompany_with':
-                                            graph_results.append(f"{disease_name}{relationship_desc}：{', '.join(entity_names)}")
-                                        else:
-                                            graph_results.append(f"{disease_name}的{relationship_desc}：{', '.join(entity_names)}")
-                                    else:
-                                        if entity_names:
-                                            graph_results.append(f"查询结果：{', '.join(entity_names)}")
+                                    graph_results.append(f"查询结果：{', '.join(entity_names)}")
                                 
                                 if graph_results:
                                     graph_context = "【知识图谱查询结果 - 这是从结构化知识图谱数据库中查询到的准确信息，请作为回答的核心依据】\n" + "\n".join(graph_results)

@@ -58,7 +58,7 @@ def has_reference_pronouns(query: str) -> bool:
 
 def extract_entities_from_history(history: List[Dict[str, str]], max_history: int = 5) -> Dict[str, List[str]]:
     """
-    从对话历史中提取主题实体（疾病、症状、药物等）
+    从对话历史中提取主题实体
     使用大模型进行智能提取
     
     Args:
@@ -67,19 +67,15 @@ def extract_entities_from_history(history: List[Dict[str, str]], max_history: in
         
     Returns:
         dict: 包含提取的实体信息
-            - diseases: 疾病列表
-            - symptoms: 症状列表
-            - drugs: 药物列表
             - topics: 主题关键词列表
+            - entities: 实体列表（通用）
     """
     # 只使用最近的历史记录
     recent_history = history[-max_history:] if len(history) > max_history else history
     
     entities = {
-        'diseases': [],
-        'symptoms': [],
-        'drugs': [],
-        'topics': []
+        'topics': [],
+        'entities': []
     }
     
     if not recent_history:
@@ -99,25 +95,22 @@ def extract_entities_from_history(history: List[Dict[str, str]], max_history: in
             history_text += f"问题{i}: {question}\n回答{i}: {answer_short}\n\n"
         
         # 构建提示词
-        system_prompt = """你是一个医学信息提取专家。请从对话历史中提取主要的医学主题实体。
+        system_prompt = """你是一个信息提取专家。请从对话历史中提取主要的主题实体。
 
 要求：
-1. 提取对话中讨论的主要疾病名称（如：感冒、高血压、糖尿病等）
-2. 提取主要症状（如果有）
-3. 提取主要药物（如果有）
-4. 提取对话的核心主题关键词（通常是疾病或症状名称）
+1. 提取对话中讨论的核心主题关键词（通常是名词，2-4个字）
+2. 提取对话中提到的其他重要实体（如果有）
+3. 识别对话的核心主题
 
 请以JSON格式返回结果，格式如下：
 {
-    "main_topic": "主要主题（疾病或症状名称，2-4个字）",
-    "diseases": ["疾病1", "疾病2"],
-    "symptoms": ["症状1", "症状2"],
-    "drugs": ["药物1", "药物2"]
+    "main_topic": "主要主题（2-4个字）",
+    "entities": ["实体1", "实体2"]
 }
 
-如果某个类别没有找到，返回空数组。main_topic 必须是最核心的主题，通常是第一个问题中提到的疾病或症状名称。"""
+如果某个类别没有找到，返回空数组。main_topic 必须是最核心的主题，通常是第一个问题中提到的关键实体。"""
 
-        user_prompt = f"""请从以下对话历史中提取医学主题实体：
+        user_prompt = f"""请从以下对话历史中提取主题实体：
 
 {history_text}
 
@@ -165,17 +158,11 @@ def extract_entities_from_history(history: List[Dict[str, str]], max_history: in
         if result.get('main_topic'):
             entities['topics'] = [result['main_topic']]
         
-        if result.get('diseases'):
-            entities['diseases'] = result['diseases']
-            # 如果没有主题，使用第一个疾病作为主题
-            if not entities['topics']:
-                entities['topics'] = [result['diseases'][0]]
-        
-        if result.get('symptoms'):
-            entities['symptoms'] = result['symptoms']
-        
-        if result.get('drugs'):
-            entities['drugs'] = result['drugs']
+        if result.get('entities'):
+            entities['entities'] = result['entities']
+            # 如果没有主题，使用第一个实体作为主题
+            if not entities['topics'] and result['entities']:
+                entities['topics'] = [result['entities'][0]]
         
     except Exception as e:
         # 如果大模型提取失败，使用简单的回退策略
@@ -187,8 +174,7 @@ def extract_entities_from_history(history: List[Dict[str, str]], max_history: in
             # 从问题开头提取2-4字的名词短语
             stop_words = ['的', '了', '是', '在', '有', '和', '就', '不', '人', '都', '一', '一个', 
                          '上', '也', '很', '到', '说', '要', '去', '你', '会', '着', '没有', '看', 
-                         '好', '自己', '这', '什么', '怎么', '如何', '哪些', '应该', '可以', '需要',
-                         '患者', '注意', '饮食', '治疗', '预防', '症状', '表现', '感觉']
+                         '好', '自己', '这', '什么', '怎么', '如何', '哪些', '应该', '可以', '需要']
             
             words = re.findall(r'[\u4e00-\u9fa5]{2,4}', first_question)
             meaningful_words = [w for w in words if w not in stop_words and len(w) >= 2]
@@ -196,12 +182,7 @@ def extract_entities_from_history(history: List[Dict[str, str]], max_history: in
             if meaningful_words:
                 main_topic = meaningful_words[0]
                 entities['topics'] = [main_topic]
-                
-                # 根据关键词判断实体类型
-                if any(keyword in main_topic for keyword in ['病', '症', '炎', '癌', '瘤']):
-                    entities['diseases'] = [main_topic]
-                elif any(keyword in main_topic for keyword in ['症状', '表现', '感觉', '疼', '痛']):
-                    entities['symptoms'] = [main_topic]
+                entities['entities'] = [main_topic]
     
     return entities
 
@@ -245,16 +226,16 @@ def enhance_query_with_context(
             answer_short = answer[:100] + '...' if len(answer) > 100 else answer
             history_text += f"问题{i}: {question}\n回答{i}: {answer_short}\n\n"
         
-        # 构建提示词
-        system_prompt = """你是一个医学对话理解专家。请分析用户当前问题是否依赖对话历史中的上下文信息。
+        # 构建提示词（通用版本）
+        system_prompt = """你是一个对话理解专家。请分析用户当前问题是否依赖对话历史中的上下文信息。
 
 任务：
 1. 判断当前问题是否包含指代性词语（如"有什么"、"怎么"、"如何"、"这个"、"那个"等），需要依赖上下文才能理解
 2. 如果问题完整且不依赖上下文，返回原问题
-3. 如果需要增强，从对话历史中提取核心主题（通常是疾病或症状名称），将主题补充到问题中
+3. 如果需要增强，从对话历史中提取核心主题，将主题补充到问题中
 
 要求：
-- 如果问题已经包含主题实体（如"感冒有什么症状？"），不需要增强
+- 如果问题已经包含主题实体，不需要增强
 - 如果问题包含指代但历史中没有明确主题，返回原问题
 - 增强后的问题应该自然、完整、易于理解
 
@@ -277,8 +258,8 @@ def enhance_query_with_context(
 请判断是否需要增强问题，如果需要，请从对话历史中提取核心主题并补充到问题中。
 
 示例：
-- 如果历史中讨论的是"感冒"，当前问题是"有什么特效药？"，应该增强为"感冒有什么特效药？"
-- 如果当前问题是"感冒了有什么症状？"，已经包含主题，不需要增强
+- 如果历史中讨论的是某个主题，当前问题是"有什么？"，应该增强为包含主题的完整问题
+- 如果当前问题已经包含主题，不需要增强
 - 如果历史中没有明确的主题，返回原问题
 
 请以JSON格式返回结果。"""
@@ -344,14 +325,12 @@ def enhance_query_with_context(
         # 从历史中提取实体
         entities = extract_entities_from_history(history, max_history)
         
-        # 优先使用疾病名称，如果没有则使用主题关键词
+        # 优先使用主题关键词，如果没有则使用实体列表
         main_topic = None
-        if entities['diseases']:
-            main_topic = entities['diseases'][0]
-        elif entities['topics']:
+        if entities['topics']:
             main_topic = entities['topics'][0]
-        elif entities['symptoms']:
-            main_topic = entities['symptoms'][0]
+        elif entities['entities']:
+            main_topic = entities['entities'][0]
         
         # 如果找到了主题，增强问题
         if main_topic:
