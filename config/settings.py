@@ -70,6 +70,8 @@ class Settings:
     DATA_RAW_PATH: str = str(PROJECT_ROOT / "data" / "raw")
     DATA_PROCESSED_PATH: str = str(PROJECT_ROOT / "data" / "processed")
     DATA_DICT_PATH: str = str(PROJECT_ROOT / "data" / "dict")
+    # 测试数据文件路径（可通过环境变量覆盖）
+    TEST_DATA_FILE: Optional[str] = os.getenv("TEST_DATA_FILE", str(PROJECT_ROOT / "data" / "raw" / "medical.jsonl"))
     
     # ========== 日志配置 ==========
     LOG_DIR: str = str(PROJECT_ROOT / "storage" / "logs")
