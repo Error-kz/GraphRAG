@@ -426,10 +426,11 @@ async def chatbot_stream(
         </question>
     """
     
-    # 使用 DeepSeek 模型流式生成回复
+    # 使用 OpenRouter LLM 模型流式生成回复
     try:
+        from config.settings import settings
         response = client_llm.chat.completions.create(
-            model="deepseek-chat",
+            model=settings.OPENROUTER_LLM_MODEL,
             messages=[
                 {
                     "role": "system",

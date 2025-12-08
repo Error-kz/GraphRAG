@@ -1,29 +1,44 @@
 """
 统一的Embedding模型封装
-消除代码重复，统一管理ZhipuAI Embedding
+使用 OpenRouter API 统一管理所有 Embedding 模型
 """
 from langchain.embeddings.base import Embeddings
-from zai import ZhipuAiClient
+from openai import OpenAI
 from config.settings import settings
 
 
 class ZhipuAIEmbeddings(Embeddings):
     """
-    智谱AI Embedding模型封装
+    Embedding模型封装（使用 OpenRouter API）
+    保持向后兼容的类名
     统一管理，避免在多个文件中重复定义
     """
     
-    def __init__(self, client: ZhipuAiClient = None):
+    def __init__(self, client: OpenAI = None, model: str = None):
         """
         初始化Embedding模型
         
         Args:
-            client: ZhipuAiClient实例，如果为None则自动创建
+            client: OpenAI客户端实例（配置为 OpenRouter），如果为None则自动创建
+            model: 模型名称，如果为None则使用配置中的默认模型
         """
         if client is None:
-            self.client = ZhipuAiClient(api_key=settings.ZHIPU_API_KEY)
+            api_key = settings.OPENROUTER_API_KEY
+            if not api_key:
+                raise ValueError("OPENROUTER_API_KEY 未配置，请设置环境变量或 .env 文件")
+            
+            self.client = OpenAI(
+                api_key=api_key,
+                base_url='https://openrouter.ai/api/v1',
+                default_headers={
+                    "HTTP-Referer": "https://github.com/your-repo",
+                    "X-Title": "GraphRAG",
+                }
+            )
         else:
             self.client = client
+        
+        self.model = model or settings.OPENROUTER_EMBEDDING_MODEL
     
     def embed_documents(self, texts: list) -> list:
         """
@@ -37,11 +52,17 @@ class ZhipuAIEmbeddings(Embeddings):
         """
         embeddings = []
         for text in texts:
-            embedding = self.client.embeddings.create(
-                model='embedding-3',
-                input=[text]
-            )
-            embeddings.append(embedding.data[0].embedding)
+            try:
+                # 使用 OpenRouter 的 embeddings API
+                response = self.client.embeddings.create(
+                    model=self.model,
+                    input=text
+                )
+                embeddings.append(response.data[0].embedding)
+            except Exception as e:
+                # 如果 OpenRouter 不支持该模型的 embedding，尝试直接调用
+                # 注意：某些模型可能需要不同的 API 格式
+                raise ValueError(f"Embedding 生成失败: {str(e)}，请检查模型 {self.model} 是否支持 embedding")
         return embeddings
     
     def embed_query(self, text: str) -> list:

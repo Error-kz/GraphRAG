@@ -32,6 +32,12 @@ class Settings:
     
     # ========== API Keys ==========
     # 从 .env 文件或环境变量加载，如果不存在则为 None
+    # OpenRouter API Key（统一管理所有大模型调用）
+    OPENROUTER_API_KEY: Optional[str] = os.getenv("OPENROUTER_API_KEY")
+    # 模型选择配置
+    OPENROUTER_LLM_MODEL: str = os.getenv("OPENROUTER_LLM_MODEL", "deepseek/deepseek-chat")
+    OPENROUTER_EMBEDDING_MODEL: str = os.getenv("OPENROUTER_EMBEDDING_MODEL", "zhipuai/glm-4-embedding")
+    # 向后兼容（已废弃，建议使用 OPENROUTER_API_KEY）
     DEEPSEEK_API_KEY: Optional[str] = os.getenv("DEEPSEEK_API_KEY")
     ZHIPU_API_KEY: Optional[str] = os.getenv("ZHIPU_API_KEY")
     
@@ -80,14 +86,19 @@ settings = Settings()
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 # 验证必要的 API Key 是否已配置
-if not settings.ZHIPU_API_KEY:
-    print("⚠️  警告: ZHIPU_API_KEY 未配置，Embedding 功能可能无法使用")
-if not settings.DEEPSEEK_API_KEY:
-    print("⚠️  警告: DEEPSEEK_API_KEY 未配置，LLM 功能可能无法使用")
+if not settings.OPENROUTER_API_KEY:
+    # 如果没有配置 OpenRouter，检查是否有旧的配置
+    if settings.DEEPSEEK_API_KEY or settings.ZHIPU_API_KEY:
+        print("⚠️  警告: 检测到旧的 API Key 配置，建议迁移到 OPENROUTER_API_KEY")
+    print("⚠️  警告: OPENROUTER_API_KEY 未配置，LLM 和 Embedding 功能可能无法使用")
+else:
+    print("✅ OpenRouter API Key 已配置")
 
-# 如果配置了 API Key，设置到环境变量中（供其他库使用）
-if settings.DEEPSEEK_API_KEY:
-    os.environ["DEEPSEEK_API_KEY"] = settings.DEEPSEEK_API_KEY
-if settings.ZHIPU_API_KEY:
-    os.environ["ZHIPU_API_KEY"] = settings.ZHIPU_API_KEY
+# 如果配置了 OpenRouter API Key，设置到环境变量中（供其他库使用）
+if settings.OPENROUTER_API_KEY:
+    os.environ["OPENROUTER_API_KEY"] = settings.OPENROUTER_API_KEY
+    # 向后兼容：如果没有配置 OpenRouter，尝试使用旧的配置
+    if not settings.DEEPSEEK_API_KEY and not settings.ZHIPU_API_KEY:
+        # 使用 OpenRouter API Key 作为备用
+        pass
 

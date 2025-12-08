@@ -19,9 +19,9 @@ from langchain_milvus import Milvus, BM25BuiltInFunction
 from config.settings import settings
 from config.neo4j_config import NEO4J_CONFIG
 from core.models.embeddings import ZhipuAIEmbeddings
-from core.models.llm import create_deepseek_client, generate_deepseek_answer
+from core.models.llm import create_openrouter_client, generate_answer
 from core.cache.redis_client import get_redis_client, save_conversation_history, save_session_to_history, get_conversation_history_list, get_session_conversations
-from zai import ZhipuAiClient
+# 已迁移到 OpenRouter，不再使用 zai SDK
 from neo4j import GraphDatabase
 
 from .streaming_handler import chatbot_stream
@@ -52,8 +52,8 @@ if web_dir.exists():
     app.mount("/static", StaticFiles(directory=str(web_dir)), name="static")
 
 # 初始化Embedding模型
-client_embedding = ZhipuAiClient(api_key=settings.ZHIPU_API_KEY)
-embedding_model = ZhipuAIEmbeddings(client_embedding)
+# 使用 OpenRouter 的 Embedding 模型
+embedding_model = ZhipuAIEmbeddings()
 print('embedding模型创建成功！！')
 
 # 创建 Milvus 向量存储（基于JSON文本）
@@ -100,9 +100,9 @@ except Exception as e:
         print(f"❌ Milvus连接失败: {error_msg}")
         raise
 
-# 创建大语言模型客户端
-client_llm = create_deepseek_client()
-print('创建 DeepSeek 成功...')
+# 创建大语言模型客户端（使用 OpenRouter）
+client_llm = create_openrouter_client()
+print('创建 OpenRouter LLM 客户端成功...')
 
 # 初始化 Neo4j 驱动（用于知识图谱查询）
 try:
@@ -586,8 +586,8 @@ async def chatbot(request: Request):
         </question>
     """
 
-    # 使用 DeepSeek 模型生成回复
-    response = generate_deepseek_answer(client_llm, SYSTEM_PROMPT + USER_PROMPT)
+    # 使用 OpenRouter LLM 模型生成回复
+    response = generate_answer(client_llm, SYSTEM_PROMPT + USER_PROMPT)
 
     # 保存对话历史到Redis
     new_session_id = None

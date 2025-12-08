@@ -11,7 +11,7 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.retrievers import ParentDocumentRetriever
 from core.models.embeddings import ZhipuAIEmbeddings
 from config.settings import settings
-from zai import ZhipuAiClient
+# 已迁移到 OpenRouter，不再使用 zai SDK
 
 
 class MilvusVectorStore:
@@ -29,8 +29,8 @@ class MilvusVectorStore:
             uri: Milvus数据库URI，如果为None则使用配置中的默认值
         """
         if embedding_model is None:
-            client = ZhipuAiClient(api_key=settings.ZHIPU_API_KEY)
-            self.embeddings = ZhipuAIEmbeddings(client)
+            # 使用 OpenRouter 的 Embedding 模型
+            self.embeddings = ZhipuAIEmbeddings()
         else:
             self.embeddings = embedding_model
         
