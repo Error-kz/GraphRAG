@@ -32,17 +32,6 @@
 
 - **路径**：`storage/models/`
 - **作用**：存放本地模型权重和相关配置文件。
-- **典型子目录**
-  - `bce-reranker-base_v1/`
-    - 重排序模型（Reranker），用于对召回结果进行精排；
-    - 包含 `config.json`、`pytorch_model.bin`、`tokenizer.json` 等。
-  - `bert_pretrain/`
-    - 预训练 BERT 模型，可用于词向量、特征抽取等场景。
-  - `gpt2_chinese_base/`
-    - 中文 GPT-2 模型权重与分词器配置。
-  - `Qwen2.5-1.5B-Instruct/`
-    - Qwen 系列指令微调模型本地权重；
-    - 包含 `model.safetensors`、`tokenizer.json` 等 HuggingFace 格式文件。
 
 > 说明：当前运行时主要使用的是远程 LLM（如 DeepSeek），本地模型目录可用于后续扩展或离线部署。
 
