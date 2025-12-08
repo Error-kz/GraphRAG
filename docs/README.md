@@ -402,7 +402,39 @@ pip install -r requirements.txt
 
 ## 🚀 快速开始
 
-### 第一步：🔍 模式推断
+### ⚡ 一键启动（推荐）
+
+**从数据读取到服务启动的完整自动化流程**：
+
+```bash
+# 赋予执行权限（首次使用）
+chmod +x start_full.sh
+
+# 一键启动（使用默认配置）
+./start_full.sh
+
+# 或指定自定义参数
+./start_full.sh \
+  --data-file data/raw/your_data.jsonl \
+  --domain your_domain \
+  --version 1.0 \
+  --clear
+```
+
+该脚本会自动执行：
+1. ✅ **环境检查**：检查 Python、依赖、配置文件
+2. 🔍 **模式推断**：自动分析数据结构，生成图模式配置
+3. 🏗️ **图谱构建**：根据模式构建知识图谱
+4. 🚀 **启动服务**：启动 Agent 和 Graph 服务
+5. 🌐 **打开浏览器**：自动访问前端界面
+
+> 📖 **详细说明**：查看 [快速启动指南](./QUICK_START.md) 了解完整流程和参数说明
+
+### 📝 分步执行（可选）
+
+如果您想了解每个步骤的详细过程，可以手动执行：
+
+#### 第一步：🔍 模式推断
 
 使用 `infer_schema.py` 脚本自动推断数据文件的图模式：
 
@@ -412,18 +444,22 @@ python scripts/infer_schema.py data/raw/your_data.jsonl --domain your_domain --v
 
 这将自动分析数据结构，识别节点、属性和关系，并生成图模式配置文件（保存在 `config/schemas/your_domain_schema_v1.0.json`）。
 
-### 第二步：🏗️ 构建图谱
+#### 第二步：🏗️ 构建图谱
 
 使用 `build_graph.py` 脚本根据模式构建知识图谱：
 
 ```bash
-python scripts/build_graph.py config/schemas/your_domain_schema_v1.0.json data/raw/your_data.jsonl
+python scripts/build_graph.py config/schemas/your_domain_schema_v1.0.json data/raw/your_data.jsonl --clear
 ```
 
-### 第三步：▶️ 启动服务
+#### 第三步：▶️ 启动服务
 
-在项目根目录执行：
+**方式一：使用完整启动脚本**
+```bash
+./start_full.sh --skip-infer --skip-build  # 仅启动服务
+```
 
+**方式二：使用简单启动脚本**
 ```bash
 chmod +x start.sh        # 第一次使用需要赋予执行权限
 ./start.sh
@@ -438,11 +474,16 @@ chmod +x start.sh        # 第一次使用需要赋予执行权限
 4. 🌐 在 macOS 上自动打开浏览器访问 `http://localhost:8103/`
 5. 👀 监控服务进程，脚本退出时尝试清理子进程
 
+**停止服务**：
+```bash
+./stop.sh  # 停止所有服务
+```
+
 日志输出默认位于：
 - [`storage/logs/agent_service_simple.log`](../storage/logs/agent_service_simple.log)
 - [`storage/logs/graph_service_simple.log`](../storage/logs/graph_service_simple.log)
 
-> 启动脚本说明：`scripts/README.md` | 启动脚本源码 `start.sh`
+> 📖 启动脚本说明：`scripts/README.md` | 快速启动指南：[QUICK_START.md](./QUICK_START.md)
 
 ---
 
@@ -786,6 +827,7 @@ curl "http://localhost:8103/api/info"
 
 ## 🔗 相关资源
 
+- 🚀 [快速启动指南](./QUICK_START.md) - **新手必读！从零到启动的完整教程**
 - 📖 [技术流程文档](./architecture/technical_workflow.md)
 - 💬 [对话记录系统](./architecture/conversation_history_system.md)
 - 🧠 [上下文增强系统](./architecture/context_enhancement.md)
