@@ -36,13 +36,13 @@
       }
     },
     {
-      "label": "Category",
+      "label": "AcompanyDisease",
       "properties": {
         "name": "string"
       }
     },
     {
-      "label": "Acompany",
+      "label": "Category",
       "properties": {
         "name": "string"
       }
@@ -62,21 +62,9 @@
       "properties": {}
     },
     {
-      "type": "belongs_to_category",
+      "type": "belongs_to_department",
       "from_node": "Disease",
-      "to_node": "Category",
-      "properties": {}
-    },
-    {
-      "type": "has_acompany",
-      "from_node": "Disease",
-      "to_node": "Acompany",
-      "properties": {}
-    },
-    {
-      "type": "cured_by",
-      "from_node": "Disease",
-      "to_node": "CureWay",
+      "to_node": "Department",
       "properties": {}
     },
     {
@@ -86,9 +74,21 @@
       "properties": {}
     },
     {
-      "type": "treated_in",
+      "type": "accompanies_with",
       "from_node": "Disease",
-      "to_node": "Department",
+      "to_node": "AcompanyDisease",
+      "properties": {}
+    },
+    {
+      "type": "belongs_to_category",
+      "from_node": "Disease",
+      "to_node": "Category",
+      "properties": {}
+    },
+    {
+      "type": "can_be_treated_by",
+      "from_node": "Disease",
+      "to_node": "CureWay",
       "properties": {}
     }
   ]

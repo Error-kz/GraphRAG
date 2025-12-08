@@ -22,7 +22,7 @@ cd "$PROJECT_ROOT"
 PYTHON_CMD="${PYTHON_CMD:-python3.11}"
 
 # 默认配置
-DEFAULT_DATA_FILE="${DATA_FILE:-data/raw/medical.jsonl}"
+DEFAULT_DATA_FILE="${DATA_FILE:-data/raw/demo.jsonl}"
 DEFAULT_DOMAIN="${DOMAIN:-medical}"
 DEFAULT_VERSION="${VERSION:-1.0}"
 DEFAULT_BATCH_SIZE="${BATCH_SIZE:-100}"
