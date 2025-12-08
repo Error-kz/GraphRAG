@@ -160,17 +160,17 @@ GraphRAG 是一个**领域无关**的通用知识图谱问答系统，结合 **�
 
 ---
 
-## 快速导航
+## 📍 快速导航
 
-- [环境准备](#环境准备) | [启动与运行](#启动与运行) | [使用方式](#使用方式) | [架构概览](#架构概览)
-- [配置模块文档](../config/README.md) | [核心模块文档](../core/README.md) | [服务层文档](../services/README.md)
-- [技术流程文档](./architecture/technical_workflow.md) | [对话记录系统](./architecture/conversation_history_system.md) | [上下文增强系统](./architecture/context_enhancement.md) | [通用图谱构建框架](../core/framework/README.md) | [项目根目录](../)
+- 🔧 [环境准备](#环境准备) | 🚀 [启动与运行](#启动与运行) | 💻 [使用方式](#使用方式) | 🏗️ [架构概览](#架构概览)
+- 📚 [配置模块文档](../config/README.md) | 🧩 [核心模块文档](../core/README.md) | 🔌 [服务层文档](../services/README.md)
+- 📖 [技术流程文档](./architecture/technical_workflow.md) | 💬 [对话记录系统](./architecture/conversation_history_system.md) | 🧠 [上下文增强系统](./architecture/context_enhancement.md) | 🎯 [通用图谱构建框架](../core/framework/README.md) | 📦 [项目根目录](../)
 
 ---
 
-## 系统核心流程与技术架构
+## 🔄 系统核心流程与技术架构
 
-### 完整工作流程
+### 📊 完整工作流程
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -223,7 +223,7 @@ GraphRAG 是一个**领域无关**的通用知识图谱问答系统，结合 **�
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### 知识图谱构建流程
+### 🗺️ 知识图谱构建流程
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -248,46 +248,46 @@ GraphRAG 是一个**领域无关**的通用知识图谱问答系统，结合 **�
 
 > 📖 详细文档：[通用知识图谱构建框架](../core/framework/README.md)
 
-### 核心技术点
+### 🔑 核心技术点
 
-1. **自动化模式推断**（核心创新）
-   - 使用大模型自动分析数据结构
-   - 无需手动定义图模式
-   - 支持多领域数据适配
+1. **🤖 自动化模式推断**（核心创新）
+   - ✨ 使用大模型自动分析数据结构
+   - 🎯 无需手动定义图模式
+   - 🌍 支持多领域数据适配
 
-2. **动态图谱构建**
-   - 根据推断的模式自动构建知识图谱
-   - 智能字段映射
-   - 支持大规模数据批量处理
+2. **🏗️ 动态图谱构建**
+   - 📊 根据推断的模式自动构建知识图谱
+   - 🔗 智能字段映射
+   - 📦 支持大规模数据批量处理
 
-3. **智能上下文增强**
-   - 基于大模型的指代检测和主题提取
-   - 自动补充对话历史中的主题实体
-   - 提升指代性问题的理解准确性
+3. **🧠 智能上下文增强**
+   - 🔍 基于大模型的指代检测和主题提取
+   - 💡 自动补充对话历史中的主题实体
+   - 📈 提升指代性问题的理解准确性
 
-4. **并行检索优化**
-   - 向量检索与知识图谱查询并行执行
-   - RRF 重排序融合多路检索结果
-   - 查询验证确保知识图谱查询的准确性
+4. **⚡ 并行检索优化**
+   - 🔄 向量检索与知识图谱查询并行执行
+   - 🎯 RRF 重排序融合多路检索结果
+   - ✅ 查询验证确保知识图谱查询的准确性
 
-5. **结果融合策略**
-   - 知识图谱结果优先（结构化、高置信度）
-   - 向量检索结果补充（非结构化、细节丰富）
-   - 智能权重分配，确保答案准确性
+5. **🔀 结果融合策略**
+   - 🎯 知识图谱结果优先（结构化、高置信度）
+   - 📚 向量检索结果补充（非结构化、细节丰富）
+   - ⚖️ 智能权重分配，确保答案准确性
 
-6. **流式生成与展示**
-   - SSE 实时推送检索和生成进度
-   - 分阶段可视化展示，提升用户体验
-   - 支持中断和错误恢复
+6. **🌊 流式生成与展示**
+   - 📡 SSE 实时推送检索和生成进度
+   - 👁️ 分阶段可视化展示，提升用户体验
+   - 🔄 支持中断和错误恢复
 
-7. **对话历史管理**
-   - Redis 持久化存储对话记录
-   - 自动会话管理和标题更新
-   - 支持历史查看、搜索、导出
+7. **💾 对话历史管理**
+   - 💿 Redis 持久化存储对话记录
+   - 🔄 自动会话管理和标题更新
+   - 🔍 支持历史查看、搜索、导出
 
 ---
 
-## 目录结构概览
+## 📁 目录结构概览
 
 ```bash
 GraphRAG/
@@ -320,17 +320,17 @@ GraphRAG/
 
 ---
 
-## 环境准备
+## 🔧 环境准备
 
-### 基础依赖
+### 📋 基础依赖
 
-- Python 3.8+
-- Neo4j 数据库（知识图谱）
-- Milvus（向量数据库，当前使用本地文件存储）
-- Redis（可选，用于缓存问答）
-- 足够磁盘空间（本地模型权重 + 向量库 + 日志）
+- 🐍 Python 3.8+
+- 🗺️ Neo4j 数据库（知识图谱）
+- 🔍 Milvus（向量数据库，当前使用本地文件存储）
+- 💾 Redis（可选，用于缓存问答）
+- 💿 足够磁盘空间（本地模型权重 + 向量库 + 日志）
 
-### 安装 Python 依赖
+### 📦 安装 Python 依赖
 
 在项目根目录执行：
 
@@ -346,18 +346,18 @@ source .venv/bin/activate        # Windows 使用 .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### 配置环境变量 / API Key
+### ⚙️ 配置环境变量 / API Key
 
 主要配置集中在 [`config/settings.py`](../config/settings.py)，支持从 `.env` 文件或环境变量中读取。
 
-#### 快速开始
+#### 🚀 快速开始
 
-1. **复制环境变量模板**：
+1. **📋 复制环境变量模板**：
    ```bash
    cp .env.example .env
    ```
 
-2. **编辑 `.env` 文件**，填写您的配置：
+2. **✏️ 编辑 `.env` 文件**，填写您的配置：
    ```bash
    # 必需：OpenRouter API Key
    OPENROUTER_API_KEY=your_openrouter_api_key_here
@@ -368,27 +368,27 @@ pip install -r requirements.txt
    NEO4J_PASSWORD=your_password
    ```
 
-#### 主要配置项
+#### 📝 主要配置项
 
-- **OpenRouter API**（统一管理所有大模型调用）：
+- **🤖 OpenRouter API**（统一管理所有大模型调用）：
   - `OPENROUTER_API_KEY`：OpenRouter API Key（**必需**）
-    - 获取方式：访问 https://openrouter.ai/keys 注册并获取
+    - 🔗 获取方式：访问 https://openrouter.ai/keys 注册并获取
   - `OPENROUTER_LLM_MODEL`：LLM 模型（默认：`deepseek/deepseek-chat`）
-    - 可选：`openai/gpt-4`、`openai/gpt-3.5-turbo`、`anthropic/claude-3-opus` 等
+    - 📋 可选：`openai/gpt-4`、`openai/gpt-3.5-turbo`、`anthropic/claude-3-opus` 等
   - `OPENROUTER_EMBEDDING_MODEL`：Embedding 模型（默认：`zhipuai/glm-4-embedding`）
-    - 可选：`openai/text-embedding-ada-002`、`cohere/embed-english-v3.0` 等
+    - 📋 可选：`openai/text-embedding-ada-002`、`cohere/embed-english-v3.0` 等
 
-- **Neo4j 图数据库**：
+- **🗺️ Neo4j 图数据库**：
   - `NEO4J_URI`：数据库地址（默认：`bolt://localhost:7687`）
   - `NEO4J_USER`：用户名（默认：`neo4j`）
   - `NEO4J_PASSWORD`：密码
 
-- **Redis 缓存**（可选）：
+- **💾 Redis 缓存**（可选）：
   - `REDIS_HOST`（默认：`0.0.0.0`）
   - `REDIS_PORT`（默认：`6379`）
   - `REDIS_PASSWORD`（可选）
 
-- **服务端口**：
+- **🔌 服务端口**：
   - `AGENT_SERVICE_PORT`（默认：`8103`）
   - `GRAPH_SERVICE_PORT`（默认：`8101`）
 
@@ -400,9 +400,9 @@ pip install -r requirements.txt
 
 ---
 
-## 快速开始
+## 🚀 快速开始
 
-### 第一步：模式推断
+### 第一步：🔍 模式推断
 
 使用 `infer_schema.py` 脚本自动推断数据文件的图模式：
 
@@ -412,7 +412,7 @@ python scripts/infer_schema.py data/raw/your_data.jsonl --domain your_domain --v
 
 这将自动分析数据结构，识别节点、属性和关系，并生成图模式配置文件（保存在 `config/schemas/your_domain_schema_v1.0.json`）。
 
-### 第二步：构建图谱
+### 第二步：🏗️ 构建图谱
 
 使用 `build_graph.py` 脚本根据模式构建知识图谱：
 
@@ -420,7 +420,7 @@ python scripts/infer_schema.py data/raw/your_data.jsonl --domain your_domain --v
 python scripts/build_graph.py config/schemas/your_domain_schema_v1.0.json data/raw/your_data.jsonl
 ```
 
-### 第三步：启动服务
+### 第三步：▶️ 启动服务
 
 在项目根目录执行：
 
@@ -430,13 +430,13 @@ chmod +x start.sh        # 第一次使用需要赋予执行权限
 ```
 
 该脚本会：
-1. 自动选择 Python 解释器（默认 `python3.11`，可通过环境变量 `PYTHON_CMD` 覆盖）  
-2. 后台启动两个服务：
-   - Agent 服务：[`scripts/start_agent.py`](../scripts/start_agent.py)（默认端口 `8103`）
-   - 图服务：[`scripts/start_graph_service.py`](../scripts/start_graph_service.py)（默认端口 `8101`）
-3. 等待端口就绪
-4. 在 macOS 上自动打开浏览器访问 `http://localhost:8103/`
-5. 监控服务进程，脚本退出时尝试清理子进程
+1. 🔍 自动选择 Python 解释器（默认 `python3.11`，可通过环境变量 `PYTHON_CMD` 覆盖）  
+2. 🚀 后台启动两个服务：
+   - 🤖 Agent 服务：[`scripts/start_agent.py`](../scripts/start_agent.py)（默认端口 `8103`）
+   - 🗺️ 图服务：[`scripts/start_graph_service.py`](../scripts/start_graph_service.py)（默认端口 `8101`）
+3. ⏳ 等待端口就绪
+4. 🌐 在 macOS 上自动打开浏览器访问 `http://localhost:8103/`
+5. 👀 监控服务进程，脚本退出时尝试清理子进程
 
 日志输出默认位于：
 - [`storage/logs/agent_service_simple.log`](../storage/logs/agent_service_simple.log)
@@ -446,9 +446,9 @@ chmod +x start.sh        # 第一次使用需要赋予执行权限
 
 ---
 
-## 使用方式
+## 💻 使用方式
 
-### 前端聊天页面
+### 🖥️ 前端聊天页面
 
 启动 Agent 服务后，在浏览器访问：
 
@@ -456,17 +456,17 @@ chmod +x start.sh        # 第一次使用需要赋予执行权限
 http://localhost:8103/
 ```
 
-#### 功能特性
+#### ✨ 功能特性
 
 页面提供：
-- 问答聊天窗口
-- 示例问题按钮
-- 多源检索路径可视化：
-  - 向量检索（Milvus）
-  - 知识图谱查询（Neo4j）
-- 知识图谱生成的 Cypher 语句与置信度展示
+- 💬 问答聊天窗口
+- 🔘 示例问题按钮
+- 📊 多源检索路径可视化：
+  - 🔍 向量检索（Milvus）
+  - 🗺️ 知识图谱查询（Neo4j）
+- 📝 知识图谱生成的 Cypher 语句与置信度展示
 
-### 直接调用 API
+### 🔌 直接调用 API
 
 问答接口示例：
 
@@ -486,9 +486,9 @@ curl "http://localhost:8103/api/info"
 
 ---
 
-## 技术架构详解
+## 🏗️ 技术架构详解
 
-### 系统架构图
+### 📐 系统架构图
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -528,128 +528,128 @@ curl "http://localhost:8103/api/info"
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### 核心模块详解
+### 🔍 核心模块详解
 
-#### `config/` – 配置管理
-- **统一配置中心**：`settings.py` 使用 Pydantic Settings
-- **环境变量支持**：敏感信息通过环境变量配置
-- **类型安全**：配置项类型检查和验证
-- **默认值管理**：提供合理的默认配置
+#### ⚙️ `config/` – 配置管理
+- 📋 **统一配置中心**：`settings.py` 使用 Pydantic Settings
+- 🔐 **环境变量支持**：敏感信息通过环境变量配置
+- ✅ **类型安全**：配置项类型检查和验证
+- 🎯 **默认值管理**：提供合理的默认配置
 
-#### `core/framework/` – 通用图谱构建框架（核心创新）
+#### 🎯 `core/framework/` – 通用图谱构建框架（核心创新）
 
-**`schema_inferrer.py`** - 自动模式推断
-- 使用大模型分析数据结构
-- 自动识别节点类型、属性和关系
-- 生成标准化的 GraphSchema 对象
+**`schema_inferrer.py`** - 🤖 自动模式推断
+- ✨ 使用大模型分析数据结构
+- 🔍 自动识别节点类型、属性和关系
+- 📊 生成标准化的 GraphSchema 对象
 
-**`graph_builder.py`** - 动态图谱构建
-- 根据模式动态解析数据
-- 智能字段映射：自动识别数据字段到图关系的映射
-- 批量创建节点和关系
-- 验证图谱完整性
+**`graph_builder.py`** - 🏗️ 动态图谱构建
+- 📝 根据模式动态解析数据
+- 🔗 智能字段映射：自动识别数据字段到图关系的映射
+- 📦 批量创建节点和关系
+- ✅ 验证图谱完整性
 
-**`schema_config.py`** - 模式配置管理
-- 保存和加载图模式配置
-- 支持领域和版本管理
-- 配置文件格式：JSON Schema 标准
+**`schema_config.py`** - 💾 模式配置管理
+- 💿 保存和加载图模式配置
+- 🔄 支持领域和版本管理
+- 📋 配置文件格式：JSON Schema 标准
 
-**`prompt_generator.py`** - 提示词生成
-- 根据图模式动态生成 NL2Cypher 提示词
-- 支持多领域适配
+**`prompt_generator.py`** - 📝 提示词生成
+- 🎯 根据图模式动态生成 NL2Cypher 提示词
+- 🌍 支持多领域适配
 
-#### `core/graph/` – 知识图谱服务
+#### 🗺️ `core/graph/` – 知识图谱服务
 
-**`nl2cypher_service.py`** - NL2Cypher 服务
-- 基于动态图模式生成 Cypher 查询
-- 支持领域和版本参数
-- 查询验证和执行
+**`nl2cypher_service.py`** - 🔄 NL2Cypher 服务
+- 🎯 基于动态图模式生成 Cypher 查询
+- 🌍 支持领域和版本参数
+- ✅ 查询验证和执行
 
-**`neo4j_client.py`** - Neo4j 数据库连接
-**`schemas.py`** - 图模式定义（节点、关系类型）
-**`prompts.py`** - NL2Cypher 提示词模板（通用版本）
-**`validators.py`** - 查询验证器（语法 + 语义）
+**`neo4j_client.py`** - 🔌 Neo4j 数据库连接
+**`schemas.py`** - 📊 图模式定义（节点、关系类型）
+**`prompts.py`** - 📝 NL2Cypher 提示词模板（通用版本）
+**`validators.py`** - ✅ 查询验证器（语法 + 语义）
 
-#### `core/` – 其他核心能力
+#### 🧩 `core/` – 其他核心能力
 
-**`models/`** - 模型封装
-- `embeddings.py`：Embedding 封装
-- `llm.py`：LLM 客户端封装
-- 统一的模型接口，易于切换和扩展
+**`models/`** - 🤖 模型封装
+- `embeddings.py`：🔢 Embedding 封装
+- `llm.py`：💬 LLM 客户端封装
+- 🔌 统一的模型接口，易于切换和扩展
 
-**`vector_store/`** - 向量存储
-- `milvus_client.py`：Milvus 客户端封装
-- 混合检索：稠密向量 + BM25 稀疏检索
-- RRF 重排序：融合多路检索结果
+**`vector_store/`** - 🔍 向量存储
+- `milvus_client.py`：💾 Milvus 客户端封装
+- 🔀 混合检索：稠密向量 + BM25 稀疏检索
+- 🎯 RRF 重排序：融合多路检索结果
 
-**`cache/`** - 缓存系统
-- `redis_client.py`：Redis 客户端封装
-- 对话历史管理：保存、查询、更新
-- 会话列表管理：Sorted Set 实现时间排序
+**`cache/`** - 💾 缓存系统
+- `redis_client.py`：🔌 Redis 客户端封装
+- 💬 对话历史管理：保存、查询、更新
+- 📋 会话列表管理：Sorted Set 实现时间排序
 
-**`context/`** - 上下文增强
-- `enhancer.py`：智能问题增强模块
-- 大模型驱动的指代检测和主题提取
-- 自动问题补全，提升问答准确性
+**`context/`** - 🧠 上下文增强
+- `enhancer.py`：✨ 智能问题增强模块
+- 🔍 大模型驱动的指代检测和主题提取
+- 💡 自动问题补全，提升问答准确性
 
-#### `services/` – 业务服务层
+#### 🔌 `services/` – 业务服务层
 
-**`agent_service.py`** - Agent 服务
-- 整合多源检索：向量检索 + 知识图谱查询
-- 流式处理：SSE 实时推送检索和生成过程
-- 上下文增强：在检索前增强用户问题
-- 会话管理：创建、查询、更新会话
-- 统一问答接口：`POST /` 和 `GET /`
+**`agent_service.py`** - 🤖 Agent 服务
+- 🔀 整合多源检索：向量检索 + 知识图谱查询
+- 🌊 流式处理：SSE 实时推送检索和生成过程
+- 🧠 上下文增强：在检索前增强用户问题
+- 💬 会话管理：创建、查询、更新会话
+- 🔌 统一问答接口：`POST /` 和 `GET /`
 
-**`graph_service.py`** - 图服务
-- NL2Cypher 生成：自然语言转 Cypher 查询
-- 动态模式支持：根据领域和版本加载图模式
-- 查询验证：语法检查 + 语义验证
-- 查询执行：执行 Cypher 并格式化结果
-- 独立服务：可单独部署和扩展
+**`graph_service.py`** - 🗺️ 图服务
+- 🔄 NL2Cypher 生成：自然语言转 Cypher 查询
+- 🎯 动态模式支持：根据领域和版本加载图模式
+- ✅ 查询验证：语法检查 + 语义验证
+- ⚡ 查询执行：执行 Cypher 并格式化结果
+- 🚀 独立服务：可单独部署和扩展
 
-**`streaming_handler.py`** - 流式处理
-- SSE 事件流：分阶段推送检索和生成进度
-- 事件类型：`search_stage`、`answer_chunk`、`query_enhanced` 等
-- 错误处理：优雅降级和错误恢复
+**`streaming_handler.py`** - 🌊 流式处理
+- 📡 SSE 事件流：分阶段推送检索和生成进度
+- 📋 事件类型：`search_stage`、`answer_chunk`、`query_enhanced` 等
+- 🛡️ 错误处理：优雅降级和错误恢复
 
-#### `web/` – 前端展示层
-- **纯前端实现**：无需构建工具，直接运行
-- **实时流式展示**：检索路径、生成过程可视化
-- **对话历史管理**：创建、查看、搜索、导出
-- **响应式设计**：适配移动端和桌面端
-- **用户体验优化**：加载状态、错误提示、空状态处理
+#### 🖥️ `web/` – 前端展示层
+- ✨ **纯前端实现**：无需构建工具，直接运行
+- 📊 **实时流式展示**：检索路径、生成过程可视化
+- 💬 **对话历史管理**：创建、查看、搜索、导出
+- 📱 **响应式设计**：适配移动端和桌面端
+- 🎨 **用户体验优化**：加载状态、错误提示、空状态处理
 
-#### `scripts/` – 启动脚本
-- `start_agent.py`：启动 Agent 服务
-- `start_graph_service.py`：启动图服务
-- `infer_schema.py`：模式推断脚本
-- `build_graph.py`：图谱构建脚本
-- `start.sh`：一键启动脚本，自动管理进程
+#### 🛠️ `scripts/` – 启动脚本
+- `start_agent.py`：🚀 启动 Agent 服务
+- `start_graph_service.py`：🗺️ 启动图服务
+- `infer_schema.py`：🔍 模式推断脚本
+- `build_graph.py`：🏗️ 图谱构建脚本
+- `start.sh`：⚡ 一键启动脚本，自动管理进程
 
-### 技术栈总结
+### 📊 技术栈总结
 
 | 层级 | 技术选型 | 用途 |
 |------|---------|------|
-| **前端** | HTML5 + JavaScript (原生) | 单页应用，无需构建 |
-| **后端框架** | FastAPI | 高性能异步 Web 框架 |
-| **知识图谱** | Neo4j | 结构化知识存储 |
-| **向量数据库** | Milvus | 大规模向量检索 |
-| **缓存/存储** | Redis | 对话历史、会话管理 |
-| **大模型** | OpenRouter API | LLM 生成和上下文增强 |
-| **Embedding** | OpenRouter API | 文本向量化 |
-| **检索算法** | RRF (Reciprocal Rank Fusion) | 多路检索结果融合 |
+| **🖥️ 前端** | HTML5 + JavaScript (原生) | 单页应用，无需构建 |
+| **⚡ 后端框架** | FastAPI | 高性能异步 Web 框架 |
+| **🗺️ 知识图谱** | Neo4j | 结构化知识存储 |
+| **🔍 向量数据库** | Milvus | 大规模向量检索 |
+| **💾 缓存/存储** | Redis | 对话历史、会话管理 |
+| **🤖 大模型** | OpenRouter API | LLM 生成和上下文增强 |
+| **🔢 Embedding** | OpenRouter API | 文本向量化 |
+| **🎯 检索算法** | RRF (Reciprocal Rank Fusion) | 多路检索结果融合 |
 
-### 核心技术亮点
+### ✨ 核心技术亮点
 
-1. **自动化模式推断**：无需手动定义图模式，系统自动分析数据结构
-2. **动态图谱构建**：根据推断的模式自动构建知识图谱
-3. **混合检索架构**：结合结构化（知识图谱）和非结构化（向量检索）数据
-4. **智能上下文增强**：基于大模型的指代消解和主题提取
-5. **流式处理**：SSE 实时推送，提升用户体验
-6. **查询验证机制**：确保知识图谱查询的准确性和安全性
-7. **模块化设计**：清晰的职责划分，易于维护和扩展
-8. **工程化实践**：配置管理、错误处理、日志记录、测试支持
+1. **🤖 自动化模式推断**：无需手动定义图模式，系统自动分析数据结构
+2. **🏗️ 动态图谱构建**：根据推断的模式自动构建知识图谱
+3. **🔀 混合检索架构**：结合结构化（知识图谱）和非结构化（向量检索）数据
+4. **🧠 智能上下文增强**：基于大模型的指代消解和主题提取
+5. **🌊 流式处理**：SSE 实时推送，提升用户体验
+6. **✅ 查询验证机制**：确保知识图谱查询的准确性和安全性
+7. **🧩 模块化设计**：清晰的职责划分，易于维护和扩展
+8. **🛠️ 工程化实践**：配置管理、错误处理、日志记录、测试支持
 
 > 📖 更详细的架构与调用链说明，见 [`docs/architecture/technical_workflow.md`](./architecture/technical_workflow.md)
 
@@ -690,27 +690,27 @@ curl "http://localhost:8103/api/info"
    - 完善的错误处理和日志记录
    - 一键启动，开箱即用
 
-### 🚀 性能指标
+### ⚡ 性能指标
 
-- **检索速度**：并行检索，总耗时约 2-5 秒
-- **生成速度**：流式输出，首字延迟 < 1 秒
-- **并发支持**：FastAPI 异步框架，支持高并发
-- **存储效率**：Redis 压缩存储，支持大规模历史记录
+- ⚡ **检索速度**：并行检索，总耗时约 2-5 秒
+- 🌊 **生成速度**：流式输出，首字延迟 < 1 秒
+- 🔄 **并发支持**：FastAPI 异步框架，支持高并发
+- 💾 **存储效率**：Redis 压缩存储，支持大规模历史记录
 
-### 📈 适用场景
+### 🎯 适用场景
 
-- **通用知识问答系统**：快速构建领域无关的问答应用
-- **知识图谱应用**：展示知识图谱在问答系统中的价值
-- **RAG 系统开发**：作为 RAG 系统的参考实现
-- **教学演示**：适合作为教学 Demo 和二次开发起点
+- 🌍 **通用知识问答系统**：快速构建领域无关的问答应用
+- 🗺️ **知识图谱应用**：展示知识图谱在问答系统中的价值
+- 📚 **RAG 系统开发**：作为 RAG 系统的参考实现
+- 🎓 **教学演示**：适合作为教学 Demo 和二次开发起点
 
 ---
 
-## 开发与扩展指南
+## 🛠️ 开发与扩展指南
 
-### 快速开始
+### 🚀 快速开始
 
-1. **环境准备**
+1. **🔧 环境准备**
    ```bash
    # 安装依赖
    pip install -r requirements.txt
@@ -721,7 +721,7 @@ curl "http://localhost:8103/api/info"
    export NEO4J_PASSWORD="your_password"
    ```
 
-2. **模式推断和图谱构建**
+2. **🔍 模式推断和图谱构建**
    ```bash
    # 推断模式
    python scripts/infer_schema.py data/raw/your_data.jsonl --domain your_domain --version 1.0
@@ -730,66 +730,66 @@ curl "http://localhost:8103/api/info"
    python scripts/build_graph.py config/schemas/your_domain_schema_v1.0.json data/raw/your_data.jsonl
    ```
 
-3. **一键启动**
+3. **▶️ 一键启动**
    ```bash
    chmod +x start.sh
    ./start.sh
    ```
 
-4. **访问系统**
-   - 前端界面：http://localhost:8103/
-   - API 文档：http://localhost:8103/docs
+4. **🌐 访问系统**
+   - 🖥️ 前端界面：http://localhost:8103/
+   - 📚 API 文档：http://localhost:8103/docs
 
-### 扩展开发
+### 🔨 扩展开发
 
-#### 新增数据源
-1. 准备数据文件（JSONL 格式）
-2. 运行模式推断脚本生成图模式
-3. 运行图谱构建脚本构建知识图谱
-4. 系统自动适配新的图模式
+#### 📊 新增数据源
+1. 📝 准备数据文件（JSONL 格式）
+2. 🔍 运行模式推断脚本生成图模式
+3. 🏗️ 运行图谱构建脚本构建知识图谱
+4. ✨ 系统自动适配新的图模式
 
-#### 替换/新增 LLM
-1. 在 `core/models/llm.py` 中封装新模型
-2. 在 `config/settings.py` 中添加配置
-3. 在 Agent 逻辑中切换或路由
+#### 🤖 替换/新增 LLM
+1. 📦 在 `core/models/llm.py` 中封装新模型
+2. ⚙️ 在 `config/settings.py` 中添加配置
+3. 🔄 在 Agent 逻辑中切换或路由
 
-#### 自定义图模式
-1. 手动编辑 `config/schemas/` 下的模式配置文件
-2. 或使用模式推断脚本自动生成
-3. 系统会自动加载并使用新的图模式
+#### 🎯 自定义图模式
+1. ✏️ 手动编辑 `config/schemas/` 下的模式配置文件
+2. 🤖 或使用模式推断脚本自动生成
+3. 🔄 系统会自动加载并使用新的图模式
 
-### 最佳实践
+### 💡 最佳实践
 
-- **依赖管理**：使用虚拟环境，避免系统 Python 冲突
-- **配置管理**：优先使用环境变量，不在代码中硬编码
-- **错误处理**：查看 `storage/logs/` 中的日志文件
-- **代码规范**：遵循模块化设计，保持职责清晰
+- 📦 **依赖管理**：使用虚拟环境，避免系统 Python 冲突
+- ⚙️ **配置管理**：优先使用环境变量，不在代码中硬编码
+- 🐛 **错误处理**：查看 `storage/logs/` 中的日志文件
+- 📋 **代码规范**：遵循模块化设计，保持职责清晰
 
-### 文档维护
+### 📝 文档维护
 
 如在使用过程中新增模块或流程，建议：
 
-- 在对应模块目录下补充或更新 `README.md`
-- 在 `docs/architecture/` 中补充技术文档
-- 更新本 README 的相关章节
-- 如有重大改动，可在 `CHANGELOG.md` 中记录
+- 📚 在对应模块目录下补充或更新 `README.md`
+- 📖 在 `docs/architecture/` 中补充技术文档
+- ✏️ 更新本 README 的相关章节
+- 📝 如有重大改动，可在 `CHANGELOG.md` 中记录
 
 ---
 
-## 项目信息
+## 📋 项目信息
 
-- **项目名称**：GraphRAG
-- **项目类型**：通用知识图谱问答系统 / RAG 系统
-- **技术栈**：Python + FastAPI + Neo4j + Milvus + Redis + OpenRouter
-- **许可证**：MIT (待定)
-- **维护状态**：积极维护中
+- 📦 **项目名称**：GraphRAG
+- 🎯 **项目类型**：通用知识图谱问答系统 / RAG 系统
+- 🛠️ **技术栈**：Python + FastAPI + Neo4j + Milvus + Redis + OpenRouter
+- 📜 **许可证**：MIT (待定)
+- 🔄 **维护状态**：积极维护中
 
-## 相关资源
+## 🔗 相关资源
 
 - 📖 [技术流程文档](./architecture/technical_workflow.md)
-- 📖 [对话记录系统](./architecture/conversation_history_system.md)
-- 📖 [上下文增强系统](./architecture/context_enhancement.md)
-- 📖 [通用知识图谱构建框架](../core/framework/README.md)
+- 💬 [对话记录系统](./architecture/conversation_history_system.md)
+- 🧠 [上下文增强系统](./architecture/context_enhancement.md)
+- 🎯 [通用知识图谱构建框架](../core/framework/README.md)
 - 📦 [项目根目录](../)
 
 ---
