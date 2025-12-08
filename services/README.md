@@ -1,6 +1,6 @@
 ## services 模块说明
 
-`services` 模块是项目的**服务层 / 业务层**，负责把底层能力（向量检索、PDF 检索、知识图谱、LLM 等）组合成完整的医疗问答与图谱服务。
+`services` 模块是项目的**服务层 / 业务层**，负责把底层能力（向量检索、文档检索、知识图谱、LLM 等）组合成完整的通用问答与图谱服务。
 
 - **目录结构**
   - `services/`
@@ -12,14 +12,14 @@
 
 ### agent_service.py
 
-主 Agent 服务，是整个项目面向用户的一站式“医学问答入口”。
+主 Agent 服务，是整个项目面向用户的一站式“多源检索 + 问答入口”。
 
 - **技术栈**
   - 框架：FastAPI
   - 向量检索：Milvus + LangChain
   - 文档检索：ParentDocumentRetriever（基于 Milvus）
   - 知识图谱：通过 HTTP 调用 `graph_service` 提供的接口
-  - LLM：DeepSeek 等，通过 `core.models.llm` 封装
+  - LLM：OpenRouter 统一封装（可切换模型）
 
 - **关键能力**
   1. **HTTP 服务与页面**
@@ -27,13 +27,13 @@
        - 如果存在 `web/index.html`，直接返回前端页面（聊天界面）。  
        - 否则返回服务状态信息和接口说明。
      - `@app.get("/api/info")`：返回服务元信息（名称、端口、可用接口等）。
-  2. **医疗问答主接口**
+  2. **通用问答主接口**
      - `@app.post("/")`：核心接口，接收 JSON：`{"question": "xxx"}`。
      - 内部流程：
        1. 初始化 `search_stages` 与 `search_path`，用于记录各阶段检索情况；
        2. 使用 `milvus_vectorstore` 进行向量检索，获取与问题最相关的文本片段；
        3. 通过 `ParentDocumentRetriever` 对 PDF 文档进行检索，补充上下文；
-       4. 调用图谱服务（`/generate`、`/validate`、`/execute`）进行知识图谱查询；
+       4. 调用图谱服务（`/generate`、`/validate`、`/execute`）进行知识图谱查询（支持动态模式加载：domain + version）；
        5. 将文本检索结果、PDF 内容和知识图谱结果整合为统一 `context`；
        6. 构造 `SYSTEM_PROMPT` + `USER_PROMPT`，调用 LLM 生成最终回答；
        7. 返回结构化响应：
@@ -49,7 +49,7 @@
 
 ### graph_service.py
 
-图服务模块，聚焦在“自然语言 → Cypher → Neo4j 查询 → 结果解释”这条链路。
+图服务模块，聚焦在“自然语言 → Cypher → Neo4j 查询 → 结果解释”这条链路，支持按领域/版本动态加载图模式。
 
 - **主要职责**
   - 提供 NL2Cypher 能力：将自然语言问题转换为 Neo4j Cypher 查询；
@@ -57,8 +57,8 @@
   - 执行图数据库查询，并对结果进行结构化封装；
   - 记录图谱查询日志，便于后续分析/优化。
 
-- **典型接口**（基于源码推断）
-  - `POST /generate`：输入 `natural_language_query`，输出：
+- **典型接口**
+  - `POST /generate`：输入 `natural_language_query`（可附带 `domain`/`version`），输出：
     - `cypher_query`：生成的查询语句
     - `confidence`：生成置信度
     - `validated`：是否通过基本验证
@@ -69,8 +69,8 @@
 
 - **与 Agent 服务的配合**
   - `agent_service.py` 不直接执行 Cypher，而是通过 HTTP 调用 `graph_service` 这三个接口；
-  - `graph_service` 专注在图谱相关的生成、校验、执行，职责更单一；
-  - 查询结果在 `agent_service` 中被加工为易读的中文描述，然后参与最终回答生成。
+  - `graph_service` 专注在图谱相关的生成、校验、执行，并支持按领域/版本动态加载模式；
+  - 查询结果在 `agent_service` 中被加工为易读的描述，然后参与最终回答生成。
 
 ---
 

@@ -14,10 +14,10 @@
 
 ### 第一步：模式推断
 
-使用 `infer_schema.py` 脚本自动推断数据文件的图模式：
+使用 `infer_schema.py` 脚本自动推断数据文件的图模式（领域无关）：
 
 ```bash
-python scripts/infer_schema.py data/raw/medical.jsonl --domain medical --version 1.0
+python scripts/infer_schema.py data/raw/your_data.jsonl --domain your_domain --version 1.0
 ```
 
 ### 第二步：构建图谱
@@ -25,7 +25,7 @@ python scripts/infer_schema.py data/raw/medical.jsonl --domain medical --version
 使用 `build_graph.py` 脚本根据模式构建知识图谱：
 
 ```bash
-python scripts/build_graph.py config/schemas/medical_schema_v1.0.json data/raw/medical.jsonl
+python scripts/build_graph.py config/schemas/your_domain_schema_v1.0.json data/raw/your_data.jsonl
 ```
 
 ## 工作流程
@@ -52,9 +52,9 @@ python scripts/build_graph.py config/schemas/medical_schema_v1.0.json data/raw/m
 2. 读取完整数据文件
    ↓
 3. 根据模式动态解析数据
-   - 识别主实体（如：Disease）
-   - 识别关联实体（如：Drug, Food）
-   - 识别关系（如：recommand_drug）
+   - 识别主实体（如：Entity）
+   - 识别关联实体（如：Category/Tag 等）
+   - 识别关系（基于字段名自动映射）
    ↓
 4. 批量创建节点和关系
    ↓
@@ -67,18 +67,16 @@ python scripts/build_graph.py config/schemas/medical_schema_v1.0.json data/raw/m
 
 ```python
 from core.framework import SchemaConfig, GraphBuilder
-from core.graph.neo4j_client import Neo4jClient
-
 # 1. 加载模式
 config_manager = SchemaConfig()
-schema = config_manager.load_schema("medical", "1.0")
+schema = config_manager.load_schema("your_domain", "1.0")
 
 # 2. 创建构建器
 builder = GraphBuilder(schema)
 
 # 3. 构建图谱
 builder.build_graph(
-    data_file="data/raw/medical.jsonl",
+    data_file="data/raw/your_data.jsonl",
     batch_size=100,
     clear_existing=False  # 是否清空现有图谱
 )
@@ -111,26 +109,32 @@ builder.build_graph(
 
 ## 配置文件格式
 
-生成的配置文件保存在 `config/schemas/` 目录下，格式如下：
+生成的配置文件保存在 `config/schemas/` 目录下，格式示例：
 
 ```json
 {
   "version": "1.0",
-  "domain": "medical",
+  "domain": "your_domain",
   "nodes": [
     {
-      "label": "Disease",
+      "label": "Entity",
       "properties": {
         "name": "string",
-        "desc": "string"
+        "description": "string"
+      }
+    },
+    {
+      "label": "Category",
+      "properties": {
+        "name": "string"
       }
     }
   ],
   "relationships": [
     {
-      "type": "has_symptom",
-      "from_node": "Disease",
-      "to_node": "Symptom",
+      "type": "belongs_to",
+      "from_node": "Entity",
+      "to_node": "Category",
       "properties": {}
     }
   ]
@@ -139,22 +143,19 @@ builder.build_graph(
 
 ## 字段映射规则
 
-框架会自动推断数据字段到图模式的映射：
+框架会自动推断数据字段到图模式的映射，示例：
 
-- `symptom` → `has_symptom` → `Symptom`
-- `category` → `belongs_to_category` → `Category`
-- `acompany` → `has_acompany` → `Acompany`
-- `cure_way` → `cured_by` → `CureWay`
-- `check` → `needs_check` → `Check`
-- `cure_department` → `treated_in` → `Department`
+- `category/categories` → `belongs_to` → `Category`
+- `{target}_id` / `{target}_name` → 指向对应目标节点的关系
+- 列表字段会自动拆分为多条关系
 
 ## 注意事项
 
 1. 确保已配置 `OPENROUTER_API_KEY` 环境变量
 2. 确保 Neo4j 数据库已启动并配置正确
-3. 数据文件的第一行应该包含完整的字段结构
-4. LLM 推断结果可能需要人工验证和调整
-5. 生成的模式配置文件可以手动编辑
+3. 数据文件的第一行应包含完整字段结构，便于模式推断
+4. LLM 推断结果建议人工校验后再构建
+5. 生成的模式配置文件可以手动编辑或版本化管理
 
 ## 下一步
 

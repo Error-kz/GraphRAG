@@ -9,15 +9,15 @@
 ### 基本用法
 
 ```bash
-python scripts/build_graph.py config/schemas/medical_schema_v1.0.json data/raw/medical.jsonl
+python scripts/build_graph.py config/schemas/your_domain_schema_v1.0.json data/raw/your_data.jsonl
 ```
 
 ### 参数说明
 
-- `schema_file` (必需): 模式配置文件路径
+- `schema_file` (必需): 模式配置文件路径  
   - 格式：`config/schemas/{domain}_schema_v{version}.json`
   
-- `data_file` (必需): 数据文件路径
+- `data_file` (必需): 数据文件路径  
   - 支持格式：JSONL (.jsonl)、JSON (.json)、CSV (.csv)
   
 - `--clear` (可选): 清空现有图谱
@@ -32,13 +32,13 @@ python scripts/build_graph.py config/schemas/medical_schema_v1.0.json data/raw/m
 
 ```bash
 # 基本构建（不清空现有数据）
-python scripts/build_graph.py config/schemas/medical_schema_v1.0.json data/raw/medical.jsonl
+python scripts/build_graph.py config/schemas/your_domain_schema_v1.0.json data/raw/your_data.jsonl
 
 # 清空现有图谱后重新构建
-python scripts/build_graph.py config/schemas/medical_schema_v1.0.json data/raw/medical.jsonl --clear
+python scripts/build_graph.py config/schemas/your_domain_schema_v1.0.json data/raw/your_data.jsonl --clear
 
 # 使用自定义批量大小
-python scripts/build_graph.py config/schemas/medical_schema_v1.0.json data/raw/medical.jsonl --batch-size 200
+python scripts/build_graph.py config/schemas/your_domain_schema_v1.0.json data/raw/your_data.jsonl --batch-size 200
 ```
 
 ## 工作流程
@@ -54,9 +54,9 @@ python scripts/build_graph.py config/schemas/medical_schema_v1.0.json data/raw/m
    - 解析每条数据记录
 
 3. **根据模式动态解析数据**
-   - 识别主实体（如：Disease）
-   - 识别关联实体（如：Symptom, Department）
-   - 识别关系（如：has_symptom, treated_in）
+   - 识别主实体（如：Entity）
+   - 识别关联实体（如：Category/Tag 等）
+   - 识别关系（基于字段名自动映射）
 
 4. **批量创建节点和关系**
    - 批量创建所有节点
@@ -68,7 +68,7 @@ python scripts/build_graph.py config/schemas/medical_schema_v1.0.json data/raw/m
    - 统计关系数量
    - 输出构建摘要
 
-## 输出示例
+## 输出示例（示意）
 
 ```
 ================================================================================
@@ -77,32 +77,29 @@ python scripts/build_graph.py config/schemas/medical_schema_v1.0.json data/raw/m
 
 [步骤1] 加载推断出的图模式...
 ✅ 模式加载成功
-  领域: medical
+  领域: your_domain
   版本: 1.0
-  节点类型: 7 个
-  关系类型: 6 个
+  节点类型: 3 个
+  关系类型: 2 个
 
-[步骤2] 读取完整数据文件: data/raw/medical.jsonl
+[步骤2] 读取完整数据文件: data/raw/your_data.jsonl
   已解析 100 条数据...
-  已解析 200 条数据...
 ✅ 数据读取完成，共 1000 条记录
   主实体数量: 1000
-  关系数量: 5000
+  关系数量: 3000
 
 [步骤3] 数据解析完成
-  识别到的主实体: Disease (1000 个)
-  识别到的关联实体: Symptom (500 个)
-  识别到的关联实体: Department (50 个)
+  识别到的主实体: Entity (1000 个)
+  识别到的关联实体: Category (200 个)
   ...
 
 [步骤4] 批量创建节点和关系...
-  创建 Symptom 节点 (500 个)...
-    ✅ Symptom 节点创建完成
-  创建 Disease 节点 (1000 个)...
-    ✅ Disease 节点创建完成
-  创建关系 (5000 条)...
-    ✅ has_symptom 关系创建完成 (2000 条)
-    ✅ treated_in 关系创建完成 (1000 条)
+  创建 Category 节点 (200 个)...
+    ✅ Category 节点创建完成
+  创建 Entity 节点 (1000 个)...
+    ✅ Entity 节点创建完成
+  创建关系 (3000 条)...
+    ✅ belongs_to 关系创建完成 (3000 条)
     ...
 
 [步骤5] 验证图谱完整性...
@@ -112,14 +109,12 @@ python scripts/build_graph.py config/schemas/medical_schema_v1.0.json data/raw/m
 ================================================================================
 
 节点统计:
-  Disease: 1000 个
-  Symptom: 500 个
-  Department: 50 个
+  Entity: 1000 个
+  Category: 200 个
   ...
 
 关系统计:
-  has_symptom: 2000 条
-  treated_in: 1000 条
+  belongs_to: 3000 条
   ...
 ================================================================================
 ```
