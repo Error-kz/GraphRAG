@@ -79,6 +79,7 @@ storage/databases/*.db.lock
 # 数据文件（原始数据和处理后的数据都很大，不提交）
 # 忽略 data/raw/ 目录下的所有文件，但保留 .gitkeep
 data/raw/*
+!data/raw/demo.jsonl
 !data/raw/.gitkeep
 # 忽略 data/processed/ 目录下的所有文件，但保留 .gitkeep
 data/processed/*
