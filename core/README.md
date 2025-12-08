@@ -60,9 +60,9 @@ embedding_client = create_embedding_client()
 
 - **`milvus_client.py`**
   - 负责连接 Milvus、本地向量数据库文件、索引参数配置等
-  - 给上层提供：
-    - 写入文档（向量化 + 建索引）
-    - 相似度检索（`similarity_search` 等）
+    - 给上层提供：
+      - 写入文档（向量化 + 建索引）
+      - 相似度检索（`similarity_search` 等）
     - 混合检索：稠密向量 + BM25 稀疏检索
     - RRF 重排序：融合多路检索结果
 

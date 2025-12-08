@@ -14,10 +14,10 @@ python scripts/build_graph.py config/schemas/your_domain_schema_v1.0.json data/r
 
 ### 参数说明
 
-- `schema_file` (必需): 模式配置文件路径  
+- `schema_file` (必需): 模式配置文件路径
   - 格式：`config/schemas/{domain}_schema_v{version}.json`
   
-- `data_file` (必需): 数据文件路径  
+- `data_file` (必需): 数据文件路径
   - 支持格式：JSONL (.jsonl)、JSON (.json)、CSV (.csv)
   
 - `--clear` (可选): 清空现有图谱

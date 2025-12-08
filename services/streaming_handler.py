@@ -257,8 +257,8 @@ async def chatbot_stream(
                                                     entity_names.append(value_str)
                                 
                                 # 生成描述性文本
-                                if entity_names:
-                                    graph_results.append(f"查询结果：{', '.join(entity_names)}")
+                                        if entity_names:
+                                            graph_results.append(f"查询结果：{', '.join(entity_names)}")
                                 
                                 if graph_results:
                                     graph_context = "【知识图谱查询结果 - 这是从结构化知识图谱数据库中查询到的准确信息，请作为回答的核心依据】\n" + "\n".join(graph_results)

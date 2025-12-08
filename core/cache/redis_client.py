@@ -72,7 +72,7 @@ def save_conversation_history(r: redis.Redis, session_id: str, question: str, an
         session_id: 会话ID
         question: 用户问题
         answer: 助手回答
-        expire: 过期时间（秒），默认86400秒（24小时）
+        expire: 过期时间（秒），默认86400秒（1天）
         
     Returns:
         tuple: (new_session_id, should_create_new)
@@ -139,7 +139,7 @@ def save_conversation_history(r: redis.Redis, session_id: str, question: str, an
             first_question = question
         save_session_to_history(r, session_id, first_question)
     
-    # 设置过期时间
+    # 设置过期时间（默认1天）
     r.expire(key, expire)
     
     return new_session_id, should_create_new
@@ -173,8 +173,8 @@ def create_session_in_history(r: redis.Redis, session_id: str, title: str = "新
         # 删除最旧的会话
         r.zremrangebyrank(sessions_key, 0, session_count - max_sessions - 1)
     
-    # 设置过期时间（30天）
-    r.expire(sessions_key, 2592000)
+    # 设置过期时间（1天）
+    r.expire(sessions_key, 86400)
 
 
 def update_session_message_count(r: redis.Redis, session_id: str):
@@ -327,6 +327,7 @@ def get_conversation_history_list(r: redis.Redis, limit: int = 50):
     sessions = r.zrevrange(sessions_key, 0, limit - 1)
     
     result = []
+    cleaned = False
     for session_json in sessions:
         try:
             session_info = json.loads(session_json)
@@ -338,6 +339,12 @@ def get_conversation_history_list(r: redis.Redis, limit: int = 50):
                 history_list = r.lrange(key, 0, -1)
                 session_info['message_count'] = len(history_list)
                 
+                # 如果历史列表已过期（不存在或为空），清理 sessions 列表中的残留记录
+                if (not history_list) and (not r.exists(key)):
+                    r.zrem(sessions_key, session_json)
+                    cleaned = True
+                    continue
+                
                 # 如果消息数量有变化，更新会话列表中的记录
                 # 但这里不更新，因为会影响排序，只在返回时更新 message_count
                 # 如果需要持久化更新，可以调用 update_session_message_count
@@ -346,6 +353,11 @@ def get_conversation_history_list(r: redis.Redis, limit: int = 50):
         except Exception as e:
             print(f"处理会话信息失败: {str(e)}")
             continue
+    
+    # 如有清理操作，限制数量并设置过期时间
+    if cleaned:
+        r.zremrangebyrank(sessions_key, 0, -51)  # 只保留最新50条
+        r.expire(sessions_key, 86400)            # 确保会话列表过期时间为1天
     
     return result
 
