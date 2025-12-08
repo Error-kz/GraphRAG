@@ -17,8 +17,10 @@
   - `data.jsonl`、`train.jsonl`、`dev.jsonl`、`dialog.jsonl`
     - 可能包含问答样本、对话数据、训练/验证集等；
     - 可用于微调、评估或构建向量索引。
-  - `medical.json`
-    - 可能为结构化的医疗知识数据，用于构建知识图谱或训练语料。
+- `medical.jsonl`
+  - 医疗知识数据，用于构建知识图谱或训练语料（完整数据）
+- `medical_demo_50.jsonl`
+  - 从 `medical.jsonl` 提取的前 50 条示例数据，便于快速演示与上传（小体量）
 
 > 建议：对 `raw` 中的文件尽量只读，所有清洗、转换步骤在脚本中完成，将结果写入 `processed`。
 
