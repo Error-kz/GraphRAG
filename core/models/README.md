@@ -39,7 +39,7 @@ embeddings = ZhipuAIEmbeddings(client=None)
 ```
 
 **参数**：
-- `client`：ZhipuAiClient 实例，如果为 `None` 则自动创建
+- `client`：OpenAI 兼容客户端实例（指向智谱官方接口），如果为 `None` 则自动创建
 
 **主要方法**：
 
@@ -66,8 +66,9 @@ embeddings = ZhipuAIEmbeddings(client=None)
 **使用场景**：用于将用户查询转换为向量，进行相似度检索
 
 **技术细节**：
-- 使用智谱 AI 的 `embedding-3` 模型
+- 使用智谱 AI 的 `embedding-3` 模型（OpenAI 兼容协议）
 - 自动从 `config.settings.ZHIPU_API_KEY` 读取 API Key
+- Base URL：`https://open.bigmodel.cn/api/paas/v4`
 
 ### llm.py
 

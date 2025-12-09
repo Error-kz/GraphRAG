@@ -370,13 +370,17 @@ pip install -r requirements.txt
 
 #### 📝 主要配置项
 
-- **🤖 OpenRouter API**（统一管理所有大模型调用）：
-  - `OPENROUTER_API_KEY`：OpenRouter API Key（**必需**）
+- **🤖 OpenRouter API**（统一管理生成式模型调用）：
+  - `OPENROUTER_API_KEY`：OpenRouter API Key（**必需，用于 LLM**）
     - 🔗 获取方式：访问 https://openrouter.ai/keys 注册并获取
   - `OPENROUTER_LLM_MODEL`：LLM 模型（默认：`deepseek/deepseek-chat`）
     - 📋 可选：`openai/gpt-4`、`openai/gpt-3.5-turbo`、`anthropic/claude-3-opus` 等
-  - `OPENROUTER_EMBEDDING_MODEL`：Embedding 模型（默认：`zhipuai/glm-4-embedding`）
-    - 📋 可选：`openai/text-embedding-ada-002`、`cohere/embed-english-v3.0` 等
+
+- **🔍 智谱 Embedding（官方 OpenAI 兼容接口）**：
+  - `ZHIPU_API_KEY`：智谱 API Key（**必需**）
+    - 🔗 获取方式：访问 https://open.bigmodel.cn/usercenter/apikeys
+  - `ZHIPU_EMBEDDING_MODEL`：Embedding 模型（默认：`embedding-3`）
+    - 📋 可选：`embedding-2` 等
 
 - **🗺️ Neo4j 图数据库**：
   - `NEO4J_URI`：数据库地址（默认：`bolt://localhost:7687`）

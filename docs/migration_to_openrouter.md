@@ -11,12 +11,15 @@
 在 `.env` 文件中添加以下配置：
 
 ```bash
-# OpenRouter API Key（必需）
+# OpenRouter API Key（必需，用于 LLM）
 OPENROUTER_API_KEY=your_openrouter_api_key_here
 
 # 模型选择（可选，有默认值）
 OPENROUTER_LLM_MODEL=deepseek/deepseek-chat
-OPENROUTER_EMBEDDING_MODEL=zhipuai/glm-4-embedding
+
+# 智谱 Embedding（必需）
+ZHIPU_API_KEY=your_zhipu_api_key_here
+ZHIPU_EMBEDDING_MODEL=embedding-3
 ```
 
 ### 2. 获取 OpenRouter API Key
@@ -76,20 +79,11 @@ answer = generate_deepseek_answer(client, question)  # 内部使用 OpenRouter
 
 ### 2. Embedding 客户端
 
-**之前：**
-```python
-from zai import ZhipuAiClient
-from core.models.embeddings import ZhipuAIEmbeddings
-
-client = ZhipuAiClient(api_key=settings.ZHIPU_API_KEY)
-embeddings = ZhipuAIEmbeddings(client)
-```
-
-**现在：**
+Embedding 已切换为智谱官方 OpenAI 兼容接口：
 ```python
 from core.models.embeddings import ZhipuAIEmbeddings
 
-# 自动使用 OpenRouter API
+# 使用智谱官方 API（需配置 ZHIPU_API_KEY）
 embeddings = ZhipuAIEmbeddings()
 ```
 
@@ -150,7 +144,7 @@ response = client.chat.completions.create(
    如果需要使用其他模型，添加：
    ```bash
    OPENROUTER_LLM_MODEL=openai/gpt-4
-   OPENROUTER_EMBEDDING_MODEL=openai/text-embedding-ada-002
+   ZHIPU_EMBEDDING_MODEL=embedding-2
    ```
 
 4. **测试配置**
@@ -168,9 +162,9 @@ response = client.chat.completions.create(
 ## 注意事项
 
 1. **API Key 安全**：请妥善保管 OpenRouter API Key，不要提交到代码仓库
-2. **模型可用性**：某些模型可能在某些地区不可用，请查看 OpenRouter 文档
-3. **成本控制**：OpenRouter 按使用量计费，请注意控制使用量
-4. **Embedding 支持**：不是所有模型都支持 embedding，请确认选择的模型支持该功能
+2. **模型可用性**：某些模型可能在某些地区不可用，请查看 OpenRouter/智谱文档
+3. **成本控制**：OpenRouter/智谱 按使用量计费，请注意控制使用量
+4. **Embedding 支持**：智谱 Embedding 需使用官方兼容接口，确认模型名称可用
 
 ## 故障排除
 
@@ -182,7 +176,7 @@ response = client.chat.completions.create(
 
 **解决方案**：更换为支持 embedding 的模型，例如：
 ```bash
-OPENROUTER_EMBEDDING_MODEL=openai/text-embedding-ada-002
+ZHIPU_EMBEDDING_MODEL=embedding-2
 ```
 
 ### 错误：API 调用失败

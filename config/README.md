@@ -10,11 +10,13 @@
 - **主要文件**
   - `settings.py`  
     - 定义 `Settings` 类，封装所有配置项，例如：
-      - **OpenRouter API**（统一管理所有大模型调用）：
-        - `OPENROUTER_API_KEY`：OpenRouter API Key（必需）
+      - **OpenRouter API**（统一管理生成式模型调用）：
+        - `OPENROUTER_API_KEY`：OpenRouter API Key（必需，用于 LLM）
         - `OPENROUTER_LLM_MODEL`：LLM 模型选择（默认：`deepseek/deepseek-chat`）
-        - `OPENROUTER_EMBEDDING_MODEL`：Embedding 模型选择（默认：`zhipuai/glm-4-embedding`）
-      - **向后兼容**（已废弃，建议迁移到 OpenRouter）：
+      - **智谱 Embedding（官方 OpenAI 兼容接口）**：
+        - `ZHIPU_API_KEY`：智谱 API Key（必需）
+        - `ZHIPU_EMBEDDING_MODEL`：Embedding 模型（默认：`embedding-3`）
+      - **向后兼容**（已废弃，建议迁移到 OpenRouter/智谱配置）：
         - `DEEPSEEK_API_KEY`、`ZHIPU_API_KEY`
       - Neo4j 连接：`NEO4J_URI`、`NEO4J_USER`、`NEO4J_PASSWORD`
       - Redis 连接：`REDIS_HOST`、`REDIS_PORT` 等

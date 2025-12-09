@@ -36,10 +36,10 @@ class Settings:
     OPENROUTER_API_KEY: Optional[str] = os.getenv("OPENROUTER_API_KEY")
     # 模型选择配置
     OPENROUTER_LLM_MODEL: str = os.getenv("OPENROUTER_LLM_MODEL", "deepseek/deepseek-chat")
-    OPENROUTER_EMBEDDING_MODEL: str = os.getenv("OPENROUTER_EMBEDDING_MODEL", "zhipuai/glm-4-embedding")
     # 向后兼容（已废弃，建议使用 OPENROUTER_API_KEY）
     DEEPSEEK_API_KEY: Optional[str] = os.getenv("DEEPSEEK_API_KEY")
     ZHIPU_API_KEY: Optional[str] = os.getenv("ZHIPU_API_KEY")
+    ZHIPU_EMBEDDING_MODEL: str = os.getenv("ZHIPU_EMBEDDING_MODEL", "embedding-3")
     
     # ========== Neo4j配置 ==========
     NEO4J_URI: str = os.getenv("NEO4J_URI")

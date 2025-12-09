@@ -51,8 +51,7 @@ web_dir = Path(__file__).parent.parent / "web"
 if web_dir.exists():
     app.mount("/static", StaticFiles(directory=str(web_dir)), name="static")
 
-# 初始化Embedding模型
-# 使用 OpenRouter 的 Embedding 模型
+# 初始化Embedding模型（智谱官方接口）
 embedding_model = ZhipuAIEmbeddings()
 print('embedding模型创建成功！！')
 
