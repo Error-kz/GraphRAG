@@ -1,5 +1,5 @@
 {
-  "version": "1.0",
+  "version": "2.0",
   "domain": "medical",
   "nodes": [
     {
@@ -24,6 +24,18 @@
       }
     },
     {
+      "label": "Drug",
+      "properties": {
+        "name": "string"
+      }
+    },
+    {
+      "label": "Food",
+      "properties": {
+        "name": "string"
+      }
+    },
+    {
       "label": "Department",
       "properties": {
         "name": "string"
@@ -31,24 +43,6 @@
     },
     {
       "label": "Check",
-      "properties": {
-        "name": "string"
-      }
-    },
-    {
-      "label": "AcompanyDisease",
-      "properties": {
-        "name": "string"
-      }
-    },
-    {
-      "label": "Category",
-      "properties": {
-        "name": "string"
-      }
-    },
-    {
-      "label": "CureWay",
       "properties": {
         "name": "string"
       }
@@ -62,33 +56,39 @@
       "properties": {}
     },
     {
-      "type": "belongs_to_department",
+      "type": "recommand_drug",
+      "from_node": "Disease",
+      "to_node": "Drug",
+      "properties": {}
+    },
+    {
+      "type": "do_eat",
+      "from_node": "Disease",
+      "to_node": "Food",
+      "properties": {}
+    },
+    {
+      "type": "not_eat",
+      "from_node": "Disease",
+      "to_node": "Food",
+      "properties": {}
+    },
+    {
+      "type": "recommand_eat",
+      "from_node": "Disease",
+      "to_node": "Food",
+      "properties": {}
+    },
+    {
+      "type": "cure_department",
       "from_node": "Disease",
       "to_node": "Department",
       "properties": {}
     },
     {
-      "type": "needs_check",
+      "type": "has_check",
       "from_node": "Disease",
       "to_node": "Check",
-      "properties": {}
-    },
-    {
-      "type": "accompanies_with",
-      "from_node": "Disease",
-      "to_node": "AcompanyDisease",
-      "properties": {}
-    },
-    {
-      "type": "belongs_to_category",
-      "from_node": "Disease",
-      "to_node": "Category",
-      "properties": {}
-    },
-    {
-      "type": "can_be_treated_by",
-      "from_node": "Disease",
-      "to_node": "CureWay",
       "properties": {}
     }
   ]
