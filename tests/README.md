@@ -10,6 +10,8 @@ tests/
 │   └── test_redis_write.py    # Redis 写入功能测试
 ├── integration/       # 集成测试
 │   └── test_conversation_history.py  # 对话历史功能测试
+├── performance/       # 性能测试
+│   └── README.md      # 性能测试文档
 └── README.md          # 本文件
 ```
 
@@ -26,6 +28,18 @@ tests/
 集成测试测试多个模块或服务之间的协作。
 
 - **test_conversation_history.py**：测试对话历史的存储和读取功能
+
+### 性能测试 (performance/)
+
+性能测试用于评估系统的性能指标和进行基准对比。
+
+- **benchmark_retrieval.py**：检索策略性能对比测试
+- **benchmark_context.py**：上下文增强效果测试
+- **benchmark_cache.py**：缓存性能测试
+- **benchmark_concurrent.py**：并发性能测试
+- **benchmark_end_to_end.py**：端到端性能测试
+
+详细说明请参考 [性能测试文档](./performance/README.md)
 
 ## 🚀 运行测试
 
@@ -46,6 +60,12 @@ python -m pytest tests/unit/
 
 ```bash
 python -m pytest tests/integration/
+```
+
+### 运行性能测试
+
+```bash
+python -m pytest tests/performance/
 ```
 
 ### 运行特定测试文件

@@ -105,7 +105,7 @@ python scripts/infer_schema.py data/raw/your_data.jsonl --domain your_domain --v
 ✅ 模式已保存到: config/schemas/your_domain_schema_v1.0.json
 ```
 
-> 📖 详细文档：[通用知识图谱构建框架](../core/framework/README.md)
+> 📖 详细文档：[通用知识图谱构建框架](../docs/framework/README.md)
 
 ---
 
@@ -276,7 +276,7 @@ python scripts/start_graph_service.py
 
 ## 🔗 相关文档
 
-- [通用知识图谱构建框架](../core/framework/README.md)
+- [通用知识图谱构建框架](../docs/framework/README.md)
 - [图谱构建脚本使用说明](../docs/README_build_graph.md)
 - [服务层文档](../services/README.md)
 - [配置管理](../config/README.md)

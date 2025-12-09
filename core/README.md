@@ -195,7 +195,7 @@ nl2cypher = NL2CypherService(domain="your_domain", version="1.0")
 result = nl2cypher.generate_cypher("你的自然语言问题")
 ```
 
-> 📖 详细文档：[通用知识图谱构建框架](./framework/README.md)
+> 📖 详细文档：[通用知识图谱构建框架](../../docs/framework/README.md)
 
 ---
 
@@ -270,7 +270,7 @@ entities = extract_entities_from_history(history)
 
 ## 📚 相关文档
 
-- [通用知识图谱构建框架](./framework/README.md)
+- [通用知识图谱构建框架](../../docs/framework/README.md)
 - [上下文增强系统](../docs/architecture/context_enhancement.md)
 - [知识图谱服务](./graph/README.md)
 - [模型封装](./models/README.md)
