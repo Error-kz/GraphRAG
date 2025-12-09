@@ -68,7 +68,7 @@ chmod +x start_full.sh
 
 - 📖 [完整快速启动指南](docs/QUICK_START.md) - 详细教程和故障排除
 - 📖 [主文档](docs/README.md) - 项目完整说明
-- 📖 [图谱构建框架](core/framework/README.md) - 框架详细说明
+- 📖 [图谱构建框架](docs/framework/README.md) - 框架详细说明
 
 ## ❓ 需要帮助？
 

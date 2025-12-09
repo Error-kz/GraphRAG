@@ -340,7 +340,7 @@ lsof -ti:8101 | xargs kill
 ## 🔗 相关文档
 
 - [主 README](../README.md) - 项目总体介绍
-- [通用图谱构建框架](../core/framework/README.md) - 框架详细说明
+- [通用图谱构建框架](./framework/README.md) - 框架详细说明
 - [图谱构建脚本说明](./README_build_graph.md) - 构建脚本使用说明
 - [服务层文档](../services/README.md) - 服务接口说明
 
