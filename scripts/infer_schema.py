@@ -37,21 +37,24 @@ def infer_and_save_schema(
     print("开始模式推断流程")
     print("=" * 80)
     
-    # 步骤1: 读取数据文件第一行
-    print("\n[步骤1] 读取数据文件第一行...")
+    # 步骤1: 读取数据文件前3行
+    print("\n[步骤1] 读取数据文件前3行...")
     reader = DataReader(data_file)
-    first_line = reader.read_first_line()
+    sample_lines = reader.read_sample_lines(n=3)
     
-    if not first_line:
-        raise ValueError("数据文件为空或无法读取第一行数据")
+    if not sample_lines:
+        raise ValueError("数据文件为空或无法读取数据")
     
-    print(f"✅ 成功读取第一行数据，包含 {len(first_line)} 个字段")
-    print(f"字段列表: {', '.join(list(first_line.keys())[:10])}...")
+    print(f"✅ 成功读取 {len(sample_lines)} 行数据")
+    if sample_lines:
+        first_line = sample_lines[0]
+        print(f"第一行包含 {len(first_line)} 个字段")
+        print(f"字段列表: {', '.join(list(first_line.keys())[:10])}...")
     
     # 步骤2: 调用大模型分析数据结构
     print("\n[步骤2] 调用大模型分析数据结构...")
     inferrer = SchemaInferrer()
-    inferred_schema = inferrer.infer_schema(first_line)
+    inferred_schema = inferrer.infer_schema(sample_lines)
     
     print("✅ LLM分析完成")
     print(f"推断出 {len(inferred_schema.get('nodes', []))} 个节点类型")

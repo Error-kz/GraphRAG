@@ -4,7 +4,7 @@
 """
 import json
 import re
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List, Union
 from openai import OpenAI
 from config.settings import settings
 from core.models.llm import create_openrouter_client
@@ -24,12 +24,12 @@ class SchemaInferrer:
         if not self.client:
             raise ValueError("无法创建LLM客户端，请检查OPENROUTER_API_KEY配置")
     
-    def infer_schema(self, sample_data: Dict[str, Any]) -> Dict[str, Any]:
+    def infer_schema(self, sample_data: Union[Dict[str, Any], List[Dict[str, Any]]]) -> Dict[str, Any]:
         """
         推断图模式
         
         Args:
-            sample_data: 样本数据（通常是第一行数据）
+            sample_data: 样本数据，可以是单行数据（字典）或多行数据（列表）
             
         Returns:
             推断出的图模式字典
@@ -57,20 +57,31 @@ class SchemaInferrer:
         except Exception as e:
             raise RuntimeError(f"LLM推断失败: {str(e)}")
     
-    def _create_inference_prompt(self, sample_data: Dict[str, Any]) -> str:
+    def _create_inference_prompt(self, sample_data: Union[Dict[str, Any], List[Dict[str, Any]]]) -> str:
         """
         创建推断提示词
         
         Args:
-            sample_data: 样本数据
+            sample_data: 样本数据，可以是单行数据（字典）或多行数据（列表）
             
         Returns:
             提示词字符串
         """
+        # 如果传入的是单个字典，转换为列表
+        if isinstance(sample_data, dict):
+            sample_data = [sample_data]
+        
         data_str = json.dumps(sample_data, ensure_ascii=False, indent=2)
         
+        # 根据数据行数调整提示词
+        data_count = len(sample_data)
+        if data_count > 1:
+            data_intro = f"以下是{data_count}条JSON数据样本，请综合分析这些数据，识别知识图谱的结构："
+        else:
+            data_intro = "请分析以下JSON数据，识别知识图谱的结构："
+        
         prompt = f"""
-请分析以下JSON数据，识别知识图谱的结构：
+{data_intro}
 
 {data_str}
 
